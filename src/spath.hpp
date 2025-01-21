@@ -175,4 +175,236 @@ johnson(std::vector<std::vector<std::pair<int, ll>>>& g) {
     return potentials; 
 }
 
+std::pair<ll, std::vector<int>> astar(const std::vector<std::vector<std::pair<int,ll>>>& g, int s, int f, ll (*heuristic)(int goal, int other)) {
+    /*
+    * Complexity: O(m*log(n)*complexity(heuristic))
+    * modified Dijkstra's algorithm for searching path to a one specific point
+    * by using some "good" estimator of distance to it for giving priority instead of pure distance 
+    */
+
+    int n = g.size();
+
+    std::vector<ll>dist(n, __LONG_LONG_MAX__);
+    std::vector<ll>p(n, -1);
+    dist[s] = 0;
+    std::set<std::pair<ll,ll>>estimates;
+    estimates.insert({heuristic(f, s), s});
+    while (!estimates.empty()) {
+        auto [est, v] = estimates.begin();
+        if (v == f) {
+            break;
+        }
+        estimates.erase(estimates.begin());
+        for (auto& [neigh, weight]: g[v]) {
+            if (dist[neigh] > dist[v]+weight) {
+                dist[neigh] = dist[v]+weight;
+                estimates.insert({dist[neigh]+heuristic(f, neigh), neigh});
+                p[neigh] = v;
+            }
+        }
+    }
+    if (dist[f] == __LONG_LONG_MAX__) {
+        return {-1, std::vector<int>()};
+    }    
+    std::vector<int>path;
+    int tmp = f;
+    while (tmp != -1) {
+        path.push_back(tmp);
+        tmp = p[tmp];
+    }
+    std::reverse(path.begin(), path.end());
+    return {dist[f], path};
+}
+
+std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_warshall(const std::vector<std::vector<std::pair<int,ll>>>& g) {
+    /*
+    * Complexity: O(n^3)
+    * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
+    * which can be then used in function path_from_next to restore any path.
+    */
+
+    std::vector<std::vector<ll>>dist(g.size(), std::vector<ll>(g.size(), __LONG_LONG_MAX__));
+    std::vector<std::vector<int>>next(g.size(), std::vector<int>(g.size(), -1));
+    for (int i = 0; i < g.size(); i++) {
+        for (const auto&[v, weight]: g[i]) {
+            dist[i][v] = weight;
+            next[i][v] = v;
+        }
+    }
+    for (int i = 0; i < g.size(); i++) {
+        for (int u = 0; u < g.size(); u++) {
+            for (int v = 0; v < g.size(); v++) {
+                if (dist[u][i] != __LONG_LONG_MAX__ && dist[i][v] != __LONG_LONG_MAX__) {
+                    if (dist[u][i]+dist[i][v] < dist[u][v]) {
+                        dist[u][v] = dist[u][i]+dist[i][v];
+                        next[u][v] = next[u][i];
+                    }
+                }
+            }
+        }
+    }
+    return {next, dist};
+}
+
+std::vector<int> path_from_next(const std::vector<std::vector<int>>& next, int s, int f) {
+    int cur = s;
+    std::vector<int>path;
+    while (cur != f) {
+        path.push_back(cur);
+        cur = next[cur][f];
+    }
+    path.push_back(f);
+    return path;
+}
+
+
+
+std::pair<ll, std::vector<std::pair<int,int>>> lee(bool **maze, int rows, int cols, std::pair<int,int>s , std::pair<int,int> f) {
+    /*
+    * Complexity: O(rows*cols)
+    * Searches the shortest path in a rectangular maze in a bfs manner
+    * returns the distance and the path.
+    */
+    
+    bool **used = new bool*[rows];
+    ll **dist = new ll*[rows];
+    for (int i = 0; i < rows; i++) {
+        used[i] = new bool[cols];
+        dist[i] = new ll[cols];
+        std::memcpy(used[i], maze[i], sizeof(maze[i][0]) * cols);
+        std::memset(dist[i], -1, cols);
+    }
+    std::vector<std::pair<int,int>>wave{s};
+    std::vector<std::pair<int,int>>path;
+    ll d = 1;
+    used[s.first][s.second] = true;
+    const int deltas[] = {-1, 0, 1};
+    do
+    {
+        std::vector<std::pair<int,int>>new_wave;
+        for (const auto& [i,j]: wave) {
+            for (int a = 0; a < 3; a++) {
+                for (int b = 0; b < 3; b++) {
+                    if (0 <= i+a && i+a < rows && 0 <= j+b && j+b < cols && !used[i+a][j+b]) {
+                        used[i+a][j+b] = true;
+                        dist[i+a][j+b] = d;
+                        new_wave.emplace_back(i+a, j+b);
+                    }
+                }
+            }
+        }
+        d++;
+        wave = std::move(new_wave);
+    } while (!wave.empty() && dist[f.first][f.second] == -1);
+    if (dist[f.first][f.second] == -1) {
+        path = std::vector<std::pair<int,int>>();
+    } else {
+        ll cur_d = dist[f.first][f.second];
+        auto tmp = f;
+        while (tmp != s) {
+            path.push_back(tmp);
+            auto[i,j] = tmp;
+            bool flag = false;
+            for (int a = 0; a < 3 && !flag; a++) {
+                for (int b = 0; b < 3 && !flag; b++) {
+                    if (0 <= i+a && i+a < rows && 0 <= j+b && j+b < cols && dist[i+a][j+b] == cur_d - 1) {
+                        tmp = {i+a,j+b};
+                        cur_d--;
+                        flag = true;
+                    }
+                }
+            }
+        }
+        path.push_back(s);
+        std::reverse(path.begin(), path.end());
+    }
+    ll ans = dist[f.first][f.second];
+    for (int i = 0; i < rows; i++) {
+        delete used[i];
+        delete dist[i];
+    }
+    delete used;
+    delete dist;
+    return {ans, path};
+}
+
+bool** generate_maze(int rows, int cols, double p = 0.5, std::string seed = "0") {
+    /*
+    generate random maze with p-frequency of obstacles
+    */
+    std::mt19937_64 rng;
+    std::seed_seq seed1 (seed.begin(),seed.end());
+    rng.seed(seed1);
+    std::uniform_real_distribution<double>unif(0,1);
+    bool** maze = new bool*[rows];
+    for (int i = 0; i < rows; i++) {
+        maze[i] = new bool[cols];
+        for (int j = 0; j < cols; j++) {
+            maze[i][j] = (unif(rng) > p);
+        }
+    }
+    return maze;
+}
+
+void free_maze(bool** maze, int rows) {
+    /*
+    free memory from generate_maze
+    */
+    for (int i = 0; i < rows; i++) {
+        delete maze[i];
+    }
+    delete maze;
+}
+
+void print_maze_path(bool** maze, int rows, int cols, const std::vector<std::pair<int, int>>& path) {
+    /*
+    print a maze path as ascii
+    */
+    char** map = new char*[rows];
+    for (int i = 0; i < rows; i++) {
+        map[i] = new char[cols];
+        for (int j = 0; j < cols; j++) {
+            map[i][j] = maze[i][j] ? 'X' : '.';
+        }
+    }
+    for (auto&[i,j]: path) {
+        map[i][j] = 'O';
+    }
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%c ", &map[i][j]);
+        }
+        printf("\n");
+    }
+    for (int i = 0; i < cols; i++) {
+        delete map[i];
+    }
+    delete map;
+}
+
+std::vector<std::vector<std::pair<int, ll>>> generate_graph(int n, double p = 0.5, std::string seed = "0") {
+    /*
+    generate random graph with p-frequency of edges
+    */
+    std::mt19937_64 rng;
+    std::seed_seq seed1 (seed.begin(),seed.end());
+    rng.seed(seed1);
+    std::uniform_real_distribution<double>unif(0,1);
+    std::uniform_int_distribution<ll>weights(0, 100);
+    std::vector<std::vector<std::pair<int,ll>>> g(n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == j) {
+                continue;
+            }
+            double coin = unif(rng);
+            ll weight = weights(rng);
+            if (coin > p) {
+                g[i].emplace_back(j, weight);
+            }
+        }
+    }
+    return g;
+}
+
 #endif
