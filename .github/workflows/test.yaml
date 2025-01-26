@@ -13,6 +13,7 @@ jobs:
       - name: Configure Cmake
         run: |
           mkdir build
-          cmake build/
+          cd build
+          cmake ..
           make Tests
           ./Tests
