@@ -16,7 +16,6 @@ jobs:
           make Tests
           ./Tests
   sanitizers:
-    name: cppcheck
     runs-on: ubuntu-latest
     steps:
         - name: Checkout code
