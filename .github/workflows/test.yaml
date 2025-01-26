@@ -1,17 +1,44 @@
 name: CI Workflow
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  build:
+  build and test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      
+      - name: Configure Cmake
+        run: | 
+          cmake ${{github.workspace}}/build$
+          make Tests
+          ./Tests
+  sanitizers:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout code
+        - uses: actions/checkout@v4
+
+        - name: cppcheck
+        - uses: deep5050/cppcheck-action@main
+          with:
+              github_token: ${{ secrets.GITHUB_TOKEN}}
+        - name: publish report    
+          uses: mikeal/publish-to-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: 'AA-Arch' # your branch name goes here
+        
+        - name: valgrind
+          run: | 
+          cmake ${{github.workspace}}/build$
+          make Tests
+          apt install valgrind
+          valgrind ./Tests
+          
+          
+
+

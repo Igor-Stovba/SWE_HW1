@@ -1,5 +1,5 @@
-#include "../src/spath.hpp"
+#include "spath.hpp"
 
 int main() {
-    // TODO
+    printf("Hello, World!\n");
 }
