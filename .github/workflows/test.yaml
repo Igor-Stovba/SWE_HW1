@@ -43,3 +43,36 @@ jobs:
           git commit -m "Updated Architecture.md" 
           git push origin HEAD:${{ github.ref_name }}
 
+  run_benchmark:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: install our lib
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          sudo make Install
+          cd ..
+          rm -rf build
+
+      - name: install google benchmark
+        run: |
+          git clone https://github.com/google/benchmark.git
+          cd benchmark
+          cmake -E make_directory "build"
+          cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
+          cmake --build "build" --config Release
+          cd ..
+
+      - name: install g++
+        run: | 
+          sudo apt install -y g++    
+
+      - name: run bench
+        run: |
+          cd tests
+          g++ bench.cpp -lbenchmark -lpthread -o bench && ./bench
