@@ -13,14 +13,57 @@
 
 using ll = long long;
 
+struct Edge {
+    int from;
+    ll w;
+    int to;
+};
+
+struct Converter {
+    const std::vector<std::vector<std::pair<int, ll>>>& g;
+
+    const std::vector<std::vector<std::pair<int, ll>>> convert(ll** mtx, int n) {
+        std::vector<std::vector<std::pair<int, ll>>>graph;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) {
+                    continue;
+                }
+                graph[i].emplace_back(j, mtx[i][j]);
+            }
+        }
+        return graph;
+    }
+    
+    const std::vector<std::vector<std::pair<int,ll>>> convert(std::vector<Edge>edge_list) {
+    int n = -1;
+    for (auto&[a,b,c]:edge_list) {
+        n = std::max(n, a);
+    }
+    n++;
+    if (n == 0) {
+        return std::vector<std::vector<std::pair<int,ll>>>();
+    }
+    std::vector<std::vector<std::pair<int, ll>>>g(n);
+    for (auto&[a,b,c]:edge_list) {
+        g[a].emplace_back(c, b);
+    }
+    return g;
+}
+
+    Converter(const std::vector<std::vector<std::pair<int, ll>>>& graph): g(graph) {}
+    Converter(ll** mtx, int n): g(convert(mtx,n)) {}
+    Converter(std::vector<Edge>edge_list): g(convert(edge_list)) {}
+};
+
 std::pair<ll, std::vector<int>>
 dijktsra_high_density(int s, int f,
-const std::vector<std::vector<std::pair<int, ll>>>& g) {
+Converter c) {
     /*
     * Optimal for graphs with high density
     * Complexity: O(n^2 + m)
     */
-
+    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     int n = g.size();
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
@@ -65,12 +108,12 @@ const std::vector<std::vector<std::pair<int, ll>>>& g) {
 
 std::pair<ll, std::vector<int>>
 dijktsra_low_density(int s, int f,
-const std::vector<std::vector<std::pair<int, ll>>>& g) {
+Converter c) {
     /*
     * Optimal for graphs with low density
     * Complexity: O(m * log(n))
     */
-
+    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     int n = g.size();
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
@@ -86,7 +129,7 @@ const std::vector<std::vector<std::pair<int, ll>>>& g) {
     }
 
     while (!estimates.empty()) {
-        auto [est, v] = estimates.begin();
+        auto [est, v] = *estimates.begin();
         estimates.erase(estimates.begin());
         for (auto& item: g[v]) {
             int to = item.first;
@@ -113,14 +156,15 @@ const std::vector<std::vector<std::pair<int, ll>>>& g) {
     return {dist[f], path};
 }
 
+
 std::vector<ll>
 bellman_ford(int s,
-const std::vector<std::vector<std::pair<int, ll>>>& g) {
+Converter c) {
     /*
     * Weight of every cycle should be non-negative
     * Complexity: O(mn)
     */
-
+    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     int n = g.size();
     assert(s >= 0 && s < n);
 
@@ -175,13 +219,13 @@ johnson(std::vector<std::vector<std::pair<int, ll>>>& g) {
     return potentials; 
 }
 
-std::pair<ll, std::vector<int>> astar(const std::vector<std::vector<std::pair<int,ll>>>& g, int s, int f, ll (*heuristic)(int goal, int other)) {
+std::pair<ll, std::vector<int>> astar(int s, int f, Converter c, ll (*heuristic)(int goal, int other)) {
     /*
     * Complexity: O(m*log(n)*complexity(heuristic))
     * modified Dijkstra's algorithm for searching path to a one specific point
     * by using some "good" estimator of distance to it for giving priority instead of pure distance 
     */
-
+    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     int n = g.size();
 
     std::vector<ll>dist(n, __LONG_LONG_MAX__);
@@ -190,7 +234,7 @@ std::pair<ll, std::vector<int>> astar(const std::vector<std::vector<std::pair<in
     std::set<std::pair<ll,ll>>estimates;
     estimates.insert({heuristic(f, s), s});
     while (!estimates.empty()) {
-        auto [est, v] = estimates.begin();
+        auto [est, v] = *estimates.begin();
         if (v == f) {
             break;
         }
@@ -216,13 +260,13 @@ std::pair<ll, std::vector<int>> astar(const std::vector<std::vector<std::pair<in
     return {dist[f], path};
 }
 
-std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_warshall(const std::vector<std::vector<std::pair<int,ll>>>& g) {
+std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_warshall(Converter c) {
     /*
     * Complexity: O(n^3)
     * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
     * which can be then used in function path_from_next to restore any path.
     */
-
+    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     std::vector<std::vector<ll>>dist(g.size(), std::vector<ll>(g.size(), __LONG_LONG_MAX__));
     std::vector<std::vector<int>>next(g.size(), std::vector<int>(g.size(), -1));
     for (int i = 0; i < g.size(); i++) {
@@ -372,7 +416,7 @@ void print_maze_path(bool** maze, int rows, int cols, const std::vector<std::pai
     }
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            printf("%c ", &map[i][j]);
+            printf("%c ", map[i][j]);
         }
         printf("\n");
     }

@@ -4,7 +4,7 @@ project(Spath)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/tests.cpp")
+add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/env.cpp")
 
 add_custom_target(Install 
     COMMAND ${CMAKE_COMMAND} -E copy
