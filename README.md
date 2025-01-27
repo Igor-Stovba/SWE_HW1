@@ -40,7 +40,7 @@ Simply include the `spath.hpp` file in your C++ project. The library is header-o
 
 # Testing
 
-We have tests.cpp with included header. On each push tests from this file will be run. The tests will use Google Test.
+We have env.cpp with included header. On each push tests from this file will be run. The tests will use Google Test.
 
 ## License
 

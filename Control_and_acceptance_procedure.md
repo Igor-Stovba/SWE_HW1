@@ -9,4 +9,4 @@ Tests to meet the requirements:
 - #### Script (Requirement 4)
     There should be a correct shell script/sequence of commands of \geq 3 lines of code that will allow using library. A video of installation and usage in Ubuntu Linux and an arbitrary IDE with successful compilation should be recorded.
 - #### Test group 2 (Requirement 5)
-    Test generates 100 random graphs for n = 10000 in adjacency list representation and checks if time for computing Floyd's and Johnson's are both less than 2 minutes.
+    Test generates 100 random graphs for n = 10000 in adjacency list representation and checks if time for computing Floyd's and Johnson's (asymptotically the heaviest algorithms with V^3 and VElogV respectively) are both less than 2 minutes.
