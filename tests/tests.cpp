@@ -35,6 +35,4 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         // REQUIRE( res31 == expected);
         // REQUIRE( res32 == expected);
         
-
-    }
 }
