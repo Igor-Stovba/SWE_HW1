@@ -18,3 +18,28 @@ jobs:
           cmake ..
           make Tests
           ./Tests
+
+  build_file_structure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get file structure
+        run: | 
+          cp utility/Architecture-template.md Architecture.md
+          cp utility/build_repo_structure.sh ./
+          ./build_repo_structure.sh Architecture.md
+      - name: Push updated version of Architecture
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+                                        
+          git add Architecture.md
+          git commit -m "Updated Architecture.md" 
+          git push origin HEAD:${{ github.ref_name }}
+
