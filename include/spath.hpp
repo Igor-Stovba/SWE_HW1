@@ -9,6 +9,7 @@
 #include <random>
 #include <cstring>
 #include <string>
+#include <iostream>
 
 
 using ll = long long;
@@ -23,10 +24,11 @@ struct Converter {
     const std::vector<std::vector<std::pair<int, ll>>>& g;
 
     const std::vector<std::vector<std::pair<int, ll>>> convert(ll** mtx, int n) {
-        std::vector<std::vector<std::pair<int, ll>>>graph;
+        std::vector<std::vector<std::pair<int, ll>>>graph(n);
+        std::cout << graph.size() << " SIZE!!";
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (i == j) {
+                if (i == j or !mtx[i][j]) {
                     continue;
                 }
                 graph[i].emplace_back(j, mtx[i][j]);
@@ -65,6 +67,7 @@ Converter c) {
     */
     const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
     int n = g.size();
+    std::cout << n << " SIZE Last";
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
 

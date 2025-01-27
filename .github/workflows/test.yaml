@@ -12,6 +12,7 @@ jobs:
       
       - name: Configure Cmake
         run: |
+          git clone git@github.com:catchorg/Catch2.git
           mkdir build
           cd build
           cmake ..
