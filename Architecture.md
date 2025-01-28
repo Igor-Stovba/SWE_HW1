@@ -9,7 +9,8 @@
 
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
     
-* We conduct all experiments in env.cpp which is a different target in our build.File structure:
+* We conduct all experiments in env.cpp which is a different target in our build.
+File structure:
 
 ./
 
