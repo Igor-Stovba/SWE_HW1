@@ -40,7 +40,7 @@ jobs:
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
                                         
           git add Architecture.md
-          git commit -m "Updated Architecture.md" 
+          git commit --allow-empty -m "Updated Architecture.md" 
           git push origin HEAD:${{ github.ref_name }}
 
   run_benchmark:
@@ -67,10 +67,6 @@ jobs:
           cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
           cmake --build "build" --config Release
           cd ..
-
-      - name: install g++
-        run: | 
-          sudo apt install -y g++    
 
       - name: run bench
         run: |

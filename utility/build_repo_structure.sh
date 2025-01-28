@@ -19,7 +19,7 @@ build_tree() {
 	  local prefix=$2
 	    
 	  # Print current dir
-	  echo "${prefix}${dir_path##*/}/" >> "$OUTPUT_FILE"
+	  echo -e "${prefix}${dir_path##*/}/\n" >> "$OUTPUT_FILE"
 		
 	  # Receive all elems from dir
 	  local items=("$dir_path"/*)
@@ -27,13 +27,13 @@ build_tree() {
 	    if [ -d "$item" ]; then
 	      build_tree "$item" "$prefix  ├── "
 	    elif [ -f "$item" ]; then
-	      echo "${prefix}  ├── ${item##*/}" >> "$OUTPUT_FILE"
+	      echo -e "${prefix}  ├── ${item##*/}\n" >> "$OUTPUT_FILE"
 	    fi
 	  done
 } 
 
 {
-   echo "\nThe structure of folders from $(pwd):"
+   echo -e "\nFile structure:\n"
    build_tree "." ""
 } >> "$OUTPUT_FILE"
 
