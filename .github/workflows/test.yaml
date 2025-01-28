@@ -40,7 +40,7 @@ jobs:
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
                                         
           git add Architecture.md
-          git commit -m --allow-empty "Updated Architecture.md" 
+          git commit --allow-empty -m "Updated Architecture.md" 
           git push origin HEAD:${{ github.ref_name }}
 
   run_benchmark:
