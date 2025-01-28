@@ -8,8 +8,18 @@
 </p>
 
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
+
+```
+struct Edge {
+    int from;
+    ll w;
+    int to;
+};
+```
     
-* We conduct all experiments in env.cpp which is a different target in our build.
+* Below is our file structure. All implementations are in include/spath.hpp and tests and benchmarks are in tests/ folder.
+
+
 File structure:
 
 ./
