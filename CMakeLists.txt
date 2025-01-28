@@ -13,15 +13,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-# Fetch Google Benchmark of including is as a directory
-include(FetchContent)
-FetchContent_Declare(
-	benchmark
-	GIT_REPOSITORY https://github.com/google/benchmark.git
-	GIT_TAG v1.9.1	
-)
-FetchContent_MakeAvailable(benchmark)
-
 add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/tests.cpp")
 target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
 
