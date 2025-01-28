@@ -33,7 +33,7 @@ build_tree() {
 } 
 
 {
-   echo -e "File structure:\n"
+   echo -e "\nFile structure:\n"
    build_tree "." ""
 } >> "$OUTPUT_FILE"
 
