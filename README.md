@@ -40,7 +40,8 @@ Simply include the `spath.hpp` file in your C++ project. The library is header-o
 
 # Testing
 
-We have env.cpp with included header. On each push tests from this file will be run. The tests will use Google Test.
+We have `tests.cpp` with included header. On each push tests from this file will be run. The tests will use Catch2 framework.
+We benchmarked our algorithms (`bench.cpp`) with help of Google Benchmark. You can see results in Github Actions. 
 
 ## License
 
