@@ -10,20 +10,38 @@
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
     
 * We conduct all experiments in env.cpp which is a different target in our build.File structure:
+
 ./
+
   ├── Architecture.md
+
   ├── CMakeLists.txt
+
   ├── Control_and_acceptance_procedure.md
+
   ├── LICENSE
+
   ├── README.md
+
   ├── Requirements.md
+
   ├── build_repo_structure.sh
+
   ├── include/
+
   ├──   ├── spath.hpp
+
   ├── maze.png
+
   ├── tests/
+
   ├──   ├── bench.cpp
+
   ├──   ├── tests.cpp
+
   ├── utility/
+
   ├──   ├── Architecture-template.md
+
   ├──   ├── build_repo_structure.sh
+
