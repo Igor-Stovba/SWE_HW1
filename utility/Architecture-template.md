@@ -4,7 +4,7 @@
 * All of our algorithms use adjacency list representation.
 * Lee's algorithm takes bool matrices instead of graph. These matrices represent mazes like these:
 <p align="center">
-<img src="maze.png" width="250" height="175" />
+<img src="utility/maze.png" width="250" height="175" />
 </p>
 
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
