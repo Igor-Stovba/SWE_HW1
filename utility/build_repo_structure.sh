@@ -27,13 +27,13 @@ build_tree() {
 	    if [ -d "$item" ]; then
 	      build_tree "$item" "$prefix  ├── "
 	    elif [ -f "$item" ]; then
-	      echo "${prefix}  ├── ${item##*/}" >> "$OUTPUT_FILE"
+	      echo -e "${prefix}  ├── ${item##*/}" >> "$OUTPUT_FILE"
 	    fi
 	  done
 } 
 
 {
-   echo "\nThe structure of folders from $(pwd):"
+   echo -e "File structure:"
    build_tree "." ""
 } >> "$OUTPUT_FILE"
 
