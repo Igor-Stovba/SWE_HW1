@@ -13,6 +13,7 @@
 
 
 using ll = long long;
+using Graph = std::vector<std::vector<std::pair<int, ll>>>; // first = to, second = weight
 
 struct Edge {
     int from;
@@ -21,11 +22,10 @@ struct Edge {
 };
 
 struct Converter {
-    const std::vector<std::vector<std::pair<int, ll>>>& g;
+    Graph g;
 
-    const std::vector<std::vector<std::pair<int, ll>>> convert(ll** mtx, int n) {
-        std::vector<std::vector<std::pair<int, ll>>>graph(n);
-        std::cout << graph.size() << " SIZE!!";
+    Graph convert(ll** mtx, int n) {
+        Graph graph(n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (i == j or !mtx[i][j]) {
@@ -37,37 +37,39 @@ struct Converter {
         return graph;
     }
     
-    const std::vector<std::vector<std::pair<int,ll>>> convert(std::vector<Edge>edge_list) {
+    const std::vector<std::vector<std::pair<int,ll>>> convert(std::vector<Edge>edge_list, bool is_directed) {
     int n = -1;
     for (auto&[a,b,c]:edge_list) {
-        n = std::max(n, a);
+        n = std::max(n, std::max(a,c));
     }
     n++;
     if (n == 0) {
         return std::vector<std::vector<std::pair<int,ll>>>();
     }
-    std::vector<std::vector<std::pair<int, ll>>>g(n);
+    Graph graph(n);
     for (auto&[a,b,c]:edge_list) {
-        g[a].emplace_back(c, b);
+        graph[a].emplace_back(c, b);
+        if (!is_directed) {
+            graph[c].emplace_back(a,b);
+        }
     }
-    return g;
+    return graph;
 }
 
-    Converter(const std::vector<std::vector<std::pair<int, ll>>>& graph): g(graph) {}
+    Converter(const Graph& graph): g(graph) {}
     Converter(ll** mtx, int n): g(convert(mtx,n)) {}
-    Converter(std::vector<Edge>edge_list): g(convert(edge_list)) {}
+    Converter(std::vector<Edge>edge_list, bool is_directed): g(convert(edge_list, is_directed)) {}
 };
 
 std::pair<ll, std::vector<int>>
-dijktsra_high_density(int s, int f,
+dijkstra_high_density(int s, int f,
 Converter c) {
     /*
     * Optimal for graphs with high density
     * Complexity: O(n^2 + m)
     */
-    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
+    const Graph & g = c.g;
     int n = g.size();
-    std::cout << n << " SIZE Last";
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
 
@@ -110,13 +112,13 @@ Converter c) {
 }
 
 std::pair<ll, std::vector<int>>
-dijktsra_low_density(int s, int f,
+dijkstra_low_density(int s, int f,
 Converter c) {
     /*
     * Optimal for graphs with low density
     * Complexity: O(m * log(n))
     */
-    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
+    const Graph & g = c.g;
     int n = g.size();
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
@@ -127,9 +129,7 @@ Converter c) {
     dist[s] = 0;
 
     std::set<std::pair<ll, int>> estimates;
-    for (int i = 0; i < n; i++) {
-        estimates.insert({dist[i], i});
-    }
+    estimates.insert({0,s});
 
     while (!estimates.empty()) {
         auto [est, v] = *estimates.begin();
@@ -145,6 +145,7 @@ Converter c) {
             }
         }
     }
+    
 
     if (dist[f] == INF)
         return {-1, std::vector<int>()};
@@ -167,7 +168,7 @@ Converter c) {
     * Weight of every cycle should be non-negative
     * Complexity: O(mn)
     */
-    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
+    const Graph & g = c.g;
     int n = g.size();
     assert(s >= 0 && s < n);
 
@@ -198,7 +199,7 @@ Converter c) {
 }
 
 std::vector<ll>
-johnson(std::vector<std::vector<std::pair<int, ll>>>& g) {
+johnson(Graph & g) {
     /*
     * Complexity: O(nm)
     * returns potentials!!!
@@ -228,7 +229,7 @@ std::pair<ll, std::vector<int>> astar(int s, int f, Converter c, ll (*heuristic)
     * modified Dijkstra's algorithm for searching path to a one specific point
     * by using some "good" estimator of distance to it for giving priority instead of pure distance 
     */
-    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
+    const Graph & g = c.g;
     int n = g.size();
 
     std::vector<ll>dist(n, __LONG_LONG_MAX__);
@@ -269,7 +270,7 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_war
     * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
     * which can be then used in function path_from_next to restore any path.
     */
-    const std::vector<std::vector<std::pair<int, ll>>>& g = c.g;
+    const Graph & g = c.g;
     std::vector<std::vector<ll>>dist(g.size(), std::vector<ll>(g.size(), __LONG_LONG_MAX__));
     std::vector<std::vector<int>>next(g.size(), std::vector<int>(g.size(), -1));
     for (int i = 0; i < g.size(); i++) {
@@ -427,31 +428,6 @@ void print_maze_path(bool** maze, int rows, int cols, const std::vector<std::pai
         delete map[i];
     }
     delete map;
-}
-
-std::vector<std::vector<std::pair<int, ll>>> generate_graph(int n, double p = 0.5, std::string seed = "0") {
-    /*
-    generate random graph with p-frequency of edges
-    */
-    std::mt19937_64 rng;
-    std::seed_seq seed1 (seed.begin(),seed.end());
-    rng.seed(seed1);
-    std::uniform_real_distribution<double>unif(0,1);
-    std::uniform_int_distribution<ll>weights(0, 100);
-    std::vector<std::vector<std::pair<int,ll>>> g(n);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (i == j) {
-                continue;
-            }
-            double coin = unif(rng);
-            ll weight = weights(rng);
-            if (coin > p) {
-                g[i].emplace_back(j, weight);
-            }
-        }
-    }
-    return g;
 }
 
 #endif
