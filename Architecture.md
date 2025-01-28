@@ -9,7 +9,7 @@
 
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
     
-* We conduct all experiments in env.cpp which is a different target in our build.\nThe structure of folders from /home/runner/work/SWE_HW1/SWE_HW1:
+* We conduct all experiments in env.cpp which is a different target in our build.File structure:
 ./
   ├── Architecture.md
   ├── CMakeLists.txt
