@@ -11,124 +11,142 @@
 #include <string>
 #include <iostream>
 
+/*
+* alias Graph is shortcut for graph representation in algorithms and Converter class
+*/
+using Graph = std::vector<std::vector<std::pair<int, long long>>>; // first = dest, second = weight
 
-using ll = long long;
-using Graph = std::vector<std::vector<std::pair<int, ll>>>; // first = to, second = weight
-
+/*
+* Edge structure describes an edge in a graph. 
+* source - vertex where an edge starts from
+* dest - vertex where an edge points to
+* weight - number. Our graphs are weighted
+* INF is used in all algorithms as maximum possible value of weight in terms of limits of long long
+*/
 struct Edge {
-    int from;
-    ll w;
-    int to;
+    int source;
+    int dest;
+    long long weight;
 };
 
 struct Converter {
-    Graph g;
+    /*
+    * Converter transforms input graph representations to our uniform format
+    * Possible input formats: adjacency list, adjacency matrix, list of edges
+    * Output format: adjacency list (using Graph)
+    */
+    Graph g; // Graph g is a result of convertions
 
-    Graph convert(ll** mtx, int n) {
-        Graph graph(n);
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i == j or !mtx[i][j]) {
-                    continue;
-                }
-                graph[i].emplace_back(j, mtx[i][j]);
+    Graph convert(long long** matrix, int size1d) {
+        /*
+        * It is used if input was an adjacency matrix
+        */
+        Graph graph(size1d);
+        for (int i = 0; i < size1d; i++) {
+            for (int j = 0; j < size1d; j++) {
+                // Loops aren't allowed + skip zeroes
+                if (i == j or !matrix[i][j]) continue;
+                graph[i].emplace_back(j, matrix[i][j]);
             }
         }
         return graph;
     }
     
-    const std::vector<std::vector<std::pair<int,ll>>> convert(std::vector<Edge>edge_list, bool is_directed) {
-    int n = -1;
-    for (auto&[a,b,c]:edge_list) {
-        n = std::max(n, std::max(a,c));
-    }
-    n++;
-    if (n == 0) {
-        return std::vector<std::vector<std::pair<int,ll>>>();
-    }
-    Graph graph(n);
-    for (auto&[a,b,c]:edge_list) {
-        graph[a].emplace_back(c, b);
-        if (!is_directed) {
-            graph[c].emplace_back(a,b);
-        }
-    }
-    return graph;
-}
+    std::vector<std::vector<std::pair<int,long long>>> 
+    convert(const std::vector<Edge>& edge_list, bool is_directed) {
+        int n = -1;
+        for (auto& [source, dest, weight]: edge_list) 
+            n = std::max(n, std::max(source, dest));
+        if (++n == 0) return {};
 
+        Graph graph(n);
+        for (auto& [source, dest, weight]: edge_list) {
+            graph[source].emplace_back(dest, weight);
+            if (!is_directed) 
+                graph[dest].emplace_back(source, weight);
+        }
+        return graph;
+    }
+
+    // Do nothing, input format = output format
     Converter(const Graph& graph): g(graph) {}
-    Converter(ll** mtx, int n): g(convert(mtx,n)) {}
-    Converter(std::vector<Edge>edge_list, bool is_directed): g(convert(edge_list, is_directed)) {}
+
+    // Adjancency matrix
+    Converter(long long** matrix, int size1d): g(convert(matrix, size1d)) {}
+
+    // Edge list
+    Converter(const std::vector<Edge>& edge_list, bool is_directed): g(convert(edge_list, is_directed)) {}
 };
 
-std::pair<ll, std::vector<int>>
-dijkstra_high_density(int s, int f,
-Converter c) {
+static std::pair<long long, std::vector<int>>
+dijkstra_high_density(int s, int f, Converter c) {
     /*
     * Optimal for graphs with high density
     * Complexity: O(n^2 + m)
     */
     const Graph & g = c.g;
     int n = g.size();
+    // s - start vertex, f - finish vertex
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
 
-    ll INF = std::numeric_limits<ll>::max();
-    std::vector<ll> dist(n, INF);
-    std::vector<int> p(n, -1);
+    long long INF = std::numeric_limits<long long>::max();
+    std::vector<long long> dist(n, INF);
+    std::vector<int> parent(n, -1);
     std::vector<bool> used(n, false);
 
     dist[s] = 0;
     for (int i = 0; i < n; i++) {
-        int v = -1;
+        int vertex = -1;
         for (int j = 0; j < n; j++) {
-            if (!used[j] && (v == -1 || dist[j] < dist[v]))
-                v = j;
+            if (!used[j] && (vertex == -1 || dist[j] < dist[vertex]))
+                vertex = j;
         }
-        if (dist[v] == INF) break;
-        used[v] = true;
+        if (dist[vertex] == INF) break;
+        used[vertex] = true;
 
-        for (int j = 0; j < g[v].size(); j++) {
-            int u = g[v][j].first;
-            ll weight = g[v][j].second;
+        for (int j = 0; j < g[vertex].size(); j++) {
+            int u = g[vertex][j].first; // u is adjacent vertex to vertex
+            long long weight = g[vertex][j].second;
             
-            if (dist[u] > dist[v] + weight) {
-                dist[u] = dist[v] + weight;
-                p[u] = v;
+            if (dist[u] > dist[vertex] + weight) {
+                dist[u] = dist[vertex] + weight;
+                parent[u] = vertex;
             }
         }
     }
     if (dist[f] == INF) 
         return {-1, std::vector<int>()};
-    std::vector<int> path = {f};
+
+    std::vector<int> path {f};
     int tmp = f;
-    while (p[tmp] != s) {
-        path.push_back(p[tmp]);
-        tmp = p[tmp];
+    while (parent[tmp] != s) {
+        path.push_back(parent[tmp]);
+        tmp = parent[tmp];
     }
     path.push_back(s);
     std::reverse(path.begin(), path.end());
     return {dist[f], path};
 }
 
-std::pair<ll, std::vector<int>>
-dijkstra_low_density(int s, int f,
-Converter c) {
+static std::pair<long long, std::vector<int>>
+dijkstra_low_density(int s, int f, Converter c) {
     /*
     * Optimal for graphs with low density
     * Complexity: O(m * log(n))
     */
     const Graph & g = c.g;
     int n = g.size();
+    // s - start vertex, f - finish vertex
     assert(s >= 0 && s < n);
     assert(f >= 0 && f < n);
 
-    ll INF = std::numeric_limits<ll>::max();
-    std::vector<ll> dist(n, INF);
-    std::vector<int> p(n, -1);
+    long long INF = std::numeric_limits<long long>::max();
+    std::vector<long long> dist(n, INF);
+    std::vector<int> parent(n, -1);
     dist[s] = 0;
 
-    std::set<std::pair<ll, int>> estimates;
+    std::set<std::pair<long long, int>> estimates;
     estimates.insert({0,s});
 
     while (!estimates.empty()) {
@@ -136,24 +154,23 @@ Converter c) {
         estimates.erase(estimates.begin());
         for (auto& item: g[v]) {
             int to = item.first;
-            ll weight = item.second;
+            long long weight = item.second;
             if (dist[to] > dist[v] + weight) {
                 estimates.erase({dist[to], to});
                 dist[to] = dist[v] + weight;
-                p[to] = v;
+                parent[to] = v;
                 estimates.insert({dist[to], to});
             }
         }
     }
     
-
     if (dist[f] == INF)
         return {-1, std::vector<int>()};
     std::vector<int> path = {f};
     int tmp = f;
-    while (p[tmp] != s) {
-        path.push_back(p[tmp]);
-        tmp = p[tmp];
+    while (parent[tmp] != s) {
+        path.push_back(parent[tmp]);
+        tmp = parent[tmp];
     }
     path.push_back(s);
     std::reverse(path.begin(), path.end());
@@ -161,44 +178,44 @@ Converter c) {
 }
 
 
-std::vector<ll>
-bellman_ford(int s,
-Converter c) {
+static std::vector<long long>
+bellman_ford(int s, Converter c) {
     /*
     * Weight of every cycle should be non-negative
     * Complexity: O(mn)
     */
     const Graph & g = c.g;
     int n = g.size();
+    // s - start vertex
     assert(s >= 0 && s < n);
 
-    ll INF = std::numeric_limits<ll>::max();
-    std::vector<int> p(n, -1);
-
+    long long INF = std::numeric_limits<long long>::max();
     // O(n) memory
-    std::vector<ll> prev(n, INF), curr(n, INF);
-    prev[s] = 0;
+    std::vector<int> parent(n, -1);
+    std::vector<long long> dist(n, INF);
+    dist[s] = 0;
 
     for (int k = 1; k < n; k++) {
-        curr = prev; 
+        bool changed = false; // Flag for early break
 
         for (int v = 0; v < n; v++) {
             for (auto& item : g[v]) {
                 int u = item.first;
-                ll weight = item.second;
-                if (prev[u] != INF && prev[u] + weight < curr[v]) {
-                    p[v] = u;
-                    curr[v] = prev[u] + weight;
+                long long weight = item.second;
+                if (dist[u] != INF && dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    parent[v] = u;
+                    changed = true;
                 }
             }
         }
-        prev = curr;
-    }
 
-    return curr;
+        if (!changed) break;
+    }
+    return dist;
 }
 
-std::vector<ll>
+static std::vector<long long>
 johnson(Graph & g) {
     /*
     * Complexity: O(nm)
@@ -209,21 +226,27 @@ johnson(Graph & g) {
 
     int n = g.size();
 
-    std::vector<std::pair<int, ll>> fakeVertex(n);
+    /*
+    * fakeVertex is used for creating one temp vertex which is needed 
+    * for calculating potentials
+    * After processing temp vertex will be removed
+    */
+    std::vector<std::pair<int, long long>> fakeVertex(n);
     for (int i = 0; i < n; i++)
         fakeVertex[i] = {i, 0};
 
-    g.push_back(std::move(fakeVertex));
+    g.push_back(std::move(fakeVertex)); // adding temp vertex
 
     // Find potentials with Ford-Bellman
-    std::vector<ll> potentials = bellman_ford(n, g);
-    potentials.pop_back(); // Delete fake vertex
+    std::vector<long long> potentials = bellman_ford(n, g);
+    potentials.pop_back(); // deleting potential for temp vertex
 
-    g.pop_back();   
+    g.pop_back();  // deleting temp vertex
     return potentials; 
 }
 
-std::pair<ll, std::vector<int>> astar(int s, int f, Converter c, ll (*heuristic)(int goal, int other)) {
+static std::pair<long long, std::vector<int>> 
+astar(int s, int f, Converter c, long long (*heuristic)(int goal, int other)) {
     /*
     * Complexity: O(m*log(n)*complexity(heuristic))
     * modified Dijkstra's algorithm for searching path to a one specific point
@@ -231,47 +254,52 @@ std::pair<ll, std::vector<int>> astar(int s, int f, Converter c, ll (*heuristic)
     */
     const Graph & g = c.g;
     int n = g.size();
+    // s - start vertex, f - finish vertex
+    assert(s >= 0 && s < n);
+    assert(f >= 0 && f < n);
 
-    std::vector<ll>dist(n, __LONG_LONG_MAX__);
-    std::vector<ll>p(n, -1);
+    long long INF = std::numeric_limits<long long>::max();
+    std::vector<long long>dist(n, INF);
+    std::vector<long long>parent(n, -1);
     dist[s] = 0;
-    std::set<std::pair<ll,ll>>estimates;
+    std::set<std::pair<long long,long long>>estimates;
     estimates.insert({heuristic(f, s), s});
     while (!estimates.empty()) {
         auto [est, v] = *estimates.begin();
-        if (v == f) {
-            break;
-        }
+        if (v == f) break;
         estimates.erase(estimates.begin());
         for (auto& [neigh, weight]: g[v]) {
             if (dist[neigh] > dist[v]+weight) {
                 dist[neigh] = dist[v]+weight;
                 estimates.insert({dist[neigh]+heuristic(f, neigh), neigh});
-                p[neigh] = v;
+                parent[neigh] = v;
             }
         }
     }
-    if (dist[f] == __LONG_LONG_MAX__) {
+    if (dist[f] == INF) 
         return {-1, std::vector<int>()};
-    }    
+       
     std::vector<int>path;
     int tmp = f;
     while (tmp != -1) {
         path.push_back(tmp);
-        tmp = p[tmp];
+        tmp = parent[tmp];
     }
     std::reverse(path.begin(), path.end());
     return {dist[f], path};
 }
 
-std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_warshall(Converter c) {
+static std::pair<std::vector<std::vector<int>>, std::vector<std::vector<long long>>> 
+floyd_warshall(Converter c) {
     /*
     * Complexity: O(n^3)
     * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
     * which can be then used in function path_from_next to restore any path.
     */
     const Graph & g = c.g;
-    std::vector<std::vector<ll>>dist(g.size(), std::vector<ll>(g.size(), __LONG_LONG_MAX__));
+
+    long long INF = std::numeric_limits<long long>::max();
+    std::vector<std::vector<long long>>dist(g.size(), std::vector<long long>(g.size(), INF));
     std::vector<std::vector<int>>next(g.size(), std::vector<int>(g.size(), -1));
     for (int i = 0; i < g.size(); i++) {
         for (const auto&[v, weight]: g[i]) {
@@ -282,9 +310,9 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_war
     for (int i = 0; i < g.size(); i++) {
         for (int u = 0; u < g.size(); u++) {
             for (int v = 0; v < g.size(); v++) {
-                if (dist[u][i] != __LONG_LONG_MAX__ && dist[i][v] != __LONG_LONG_MAX__) {
-                    if (dist[u][i]+dist[i][v] < dist[u][v]) {
-                        dist[u][v] = dist[u][i]+dist[i][v];
+                if (dist[u][i] != INF && dist[i][v] != INF) {
+                    if (dist[u][i] + dist[i][v] < dist[u][v]) {
+                        dist[u][v] = dist[u][i] + dist[i][v];
                         next[u][v] = next[u][i];
                     }
                 }
@@ -294,140 +322,21 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<ll>>> floyd_war
     return {next, dist};
 }
 
-std::vector<int> path_from_next(const std::vector<std::vector<int>>& next, int s, int f) {
+static std::vector<int> 
+path_from_next(const std::vector<std::vector<int>>& next, int s, int f) {
+    /*
+    * It is applied to 'next' from floyd_warshall algorithm to reconstruct the path
+    * from start vertex (s) to finish vertex (f)
+    */
     int cur = s;
     std::vector<int>path;
     while (cur != f) {
         path.push_back(cur);
         cur = next[cur][f];
     }
+    
     path.push_back(f);
     return path;
-}
-
-
-
-std::pair<ll, std::vector<std::pair<int,int>>> lee(bool **maze, int rows, int cols, std::pair<int,int>s , std::pair<int,int> f) {
-    /*
-    * Complexity: O(rows*cols)
-    * Searches the shortest path in a rectangular maze in a bfs manner
-    * returns the distance and the path.
-    */
-    
-    bool **used = new bool*[rows];
-    ll **dist = new ll*[rows];
-    for (int i = 0; i < rows; i++) {
-        used[i] = new bool[cols];
-        dist[i] = new ll[cols];
-        std::memcpy(used[i], maze[i], sizeof(maze[i][0]) * cols);
-        std::memset(dist[i], -1, cols);
-    }
-    std::vector<std::pair<int,int>>wave{s};
-    std::vector<std::pair<int,int>>path;
-    ll d = 1;
-    used[s.first][s.second] = true;
-    const int deltas[] = {-1, 0, 1};
-    do
-    {
-        std::vector<std::pair<int,int>>new_wave;
-        for (const auto& [i,j]: wave) {
-            for (int a = 0; a < 3; a++) {
-                for (int b = 0; b < 3; b++) {
-                    if (0 <= i+a && i+a < rows && 0 <= j+b && j+b < cols && !used[i+a][j+b]) {
-                        used[i+a][j+b] = true;
-                        dist[i+a][j+b] = d;
-                        new_wave.emplace_back(i+a, j+b);
-                    }
-                }
-            }
-        }
-        d++;
-        wave = std::move(new_wave);
-    } while (!wave.empty() && dist[f.first][f.second] == -1);
-    if (dist[f.first][f.second] == -1) {
-        path = std::vector<std::pair<int,int>>();
-    } else {
-        ll cur_d = dist[f.first][f.second];
-        auto tmp = f;
-        while (tmp != s) {
-            path.push_back(tmp);
-            auto[i,j] = tmp;
-            bool flag = false;
-            for (int a = 0; a < 3 && !flag; a++) {
-                for (int b = 0; b < 3 && !flag; b++) {
-                    if (0 <= i+a && i+a < rows && 0 <= j+b && j+b < cols && dist[i+a][j+b] == cur_d - 1) {
-                        tmp = {i+a,j+b};
-                        cur_d--;
-                        flag = true;
-                    }
-                }
-            }
-        }
-        path.push_back(s);
-        std::reverse(path.begin(), path.end());
-    }
-    ll ans = dist[f.first][f.second];
-    for (int i = 0; i < rows; i++) {
-        delete used[i];
-        delete dist[i];
-    }
-    delete used;
-    delete dist;
-    return {ans, path};
-}
-
-bool** generate_maze(int rows, int cols, double p = 0.5, std::string seed = "0") {
-    /*
-    generate random maze with p-frequency of obstacles
-    */
-    std::mt19937_64 rng;
-    std::seed_seq seed1 (seed.begin(),seed.end());
-    rng.seed(seed1);
-    std::uniform_real_distribution<double>unif(0,1);
-    bool** maze = new bool*[rows];
-    for (int i = 0; i < rows; i++) {
-        maze[i] = new bool[cols];
-        for (int j = 0; j < cols; j++) {
-            maze[i][j] = (unif(rng) > p);
-        }
-    }
-    return maze;
-}
-
-void free_maze(bool** maze, int rows) {
-    /*
-    free memory from generate_maze
-    */
-    for (int i = 0; i < rows; i++) {
-        delete maze[i];
-    }
-    delete maze;
-}
-
-void print_maze_path(bool** maze, int rows, int cols, const std::vector<std::pair<int, int>>& path) {
-    /*
-    print a maze path as ascii
-    */
-    char** map = new char*[rows];
-    for (int i = 0; i < rows; i++) {
-        map[i] = new char[cols];
-        for (int j = 0; j < cols; j++) {
-            map[i][j] = maze[i][j] ? 'X' : '.';
-        }
-    }
-    for (auto&[i,j]: path) {
-        map[i][j] = 'O';
-    }
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            printf("%c ", map[i][j]);
-        }
-        printf("\n");
-    }
-    for (int i = 0; i < cols; i++) {
-        delete map[i];
-    }
-    delete map;
 }
 
 #endif
