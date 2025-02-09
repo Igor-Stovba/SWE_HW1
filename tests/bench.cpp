@@ -52,12 +52,8 @@ generate_random_graph(int num_nodes, int num_edges,
         generated_proxy_graph = generated_proxy_graph.directed();
     }
 
-<<<<<<< Updated upstream
-using Graph = std::vector<std::vector<std::pair<int, long long>>>; // first = to, second = weight
-=======
     // Graph_ as edge list
     std::vector<std::pair<int, int>> generated_graph = generated_proxy_graph.g().shuffled().edges();
->>>>>>> Stashed changes
 
     // weight generation
     std::random_device rd;
