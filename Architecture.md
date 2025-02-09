@@ -46,7 +46,21 @@ File structure:
 
   ├── include/
 
+  ├──   ├── converter.hpp
+
+  ├──   ├── edge.hpp
+
   ├──   ├── spath.hpp
+
+  ├── src/
+
+  ├──   ├── bench.cpp
+
+  ├──   ├── converter.cpp
+
+  ├──   ├── spath.cpp
+
+  ├──   ├── tests.cpp
 
   ├── tests/
 
