@@ -2,8 +2,9 @@
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 
-void test_dijkstra(Converter adjacency_list_converter, Converter adjacency_matrix_converter, Converter edge_list_converter, int s, int f,
-std::pair<ll, std::vector<int>> expected) {
+void test_shortest_path(Converter adjacency_list_converter, Converter adjacency_matrix_converter, Converter edge_list_converter, int s, int f,
+(std::pair<long long, std::vector<int>>)(*algorithm)()
+std::pair<long long, std::vector<int>> expected) {
     auto res1 = dijkstra_high_density(s,f,adjacency_list_converter);
     auto res2 = dijkstra_high_density(s,f,adjacency_matrix_converter);
     auto res3 = dijkstra_high_density(s,f,edge_list_converter);
@@ -24,10 +25,10 @@ std::pair<ll, std::vector<int>> expected) {
 TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
     SECTION("empty graph") {
         int n = 5;
-        std::vector<std::vector<std::pair<int, ll>>>adjacency_list(n);
-        ll** adjacency_matrix = new ll*[n];
+        std::vector<std::vector<std::pair<int, long long>>>adjacency_list(n);
+        long long** adjacency_matrix = new long long*[n];
         for (int i = 0; i < n; i++) {
-            adjacency_matrix[i] = new ll[n];
+            adjacency_matrix[i] = new long long[n];
             for (int j = 0; j < n; j++) {
                 adjacency_matrix[i][j] = 0;
             }
@@ -44,7 +45,7 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         auto res22 = dijkstra_low_density(0,2,adjacency_matrix_converter);
 
 
-        std::pair<ll, std::vector<int>> expected = {-1,std::vector<int>()};
+        std::pair<long long, std::vector<int>> expected = {-1,std::vector<int>()};
 
         REQUIRE( res1 == expected );
         REQUIRE( res2 == expected );
@@ -59,7 +60,7 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
 
     SECTION("full graph") {
         int n = 5;
-        std::vector<std::vector<std::pair<int, ll>>>adjacency_list(n);
+        std::vector<std::vector<std::pair<int, long long>>>adjacency_list(n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (i == j) {
@@ -69,9 +70,9 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
             }
         }
 
-        ll** adjacency_matrix = new ll*[n];
+        long long** adjacency_matrix = new long long*[n];
         for (int i = 0; i < n; i++) {
-            adjacency_matrix[i] = new ll[n];
+            adjacency_matrix[i] = new long long[n];
             for (int j = 0; j < n; j++) {
                 if (i == j) {
                     continue;
@@ -94,7 +95,7 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter adjacency_list_converter = Converter(adjacency_list);
         Converter adjacency_matrix_converter = Converter(adjacency_matrix, 5);
         Converter edge_list_converter = Converter(edge_list, false);
-        std::pair<ll, std::vector<int>> expected = {1,{0,3}};
+        std::pair<long long, std::vector<int>> expected = {1,{0,3}};
 
         test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected);
 
@@ -106,16 +107,16 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
     }
     SECTION("complex graph") {
         int n = 5;
-        std::vector<std::vector<std::pair<int, ll>>>adjacency_list(n);
+        std::vector<std::vector<std::pair<int, long long>>>adjacency_list(n);
         adjacency_list[0] = {{1,100}, {4, 10}, {3, 20}};
         adjacency_list[1] = {{2,7}, {0,100}};
         adjacency_list[2] = {{1,7}, {3,20}};
         adjacency_list[3] = {{4,15},{0,20},{2,20}};
         adjacency_list[4] = {{0,10},{3,15}};
 
-        ll** adjacency_matrix = new ll*[n];
+        long long** adjacency_matrix = new long long*[n];
         for (int i = 0; i < n; i++) {
-            adjacency_matrix[i] = new ll[n];
+            adjacency_matrix[i] = new long long[n];
             for (int j = 0; j < n; j++) {
                 adjacency_matrix[i][j] = 0;
             }
@@ -133,7 +134,7 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter adjacency_matrix_converter = Converter(adjacency_matrix, 5);
         Converter edge_list_converter = Converter(edge_list, false);
 
-        std::pair<ll, std::vector<int>> expected = {47,{0,3,2,1}};
+        std::pair<long long, std::vector<int>> expected = {47,{0,3,2,1}};
 
 
         test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected);
@@ -148,16 +149,16 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
 
     SECTION("two components") {
         int n = 5;
-        std::vector<std::vector<std::pair<int, ll>>>adjacency_list(n);
+        std::vector<std::vector<std::pair<int, long long>>>adjacency_list(n);
         adjacency_list[0] = {{4,10}, {3,20}};
         adjacency_list[1] = {{2,7}};
         adjacency_list[2] = {{1,7}};
         adjacency_list[3] = {{0,20},{4,15}};
         adjacency_list[4] = {{0,10}, {3,15}};
 
-        ll** adjacency_matrix = new ll*[n];
+        long long** adjacency_matrix = new long long*[n];
         for (int i = 0; i < n; i++) {
-            adjacency_matrix[i] = new ll[n];
+            adjacency_matrix[i] = new long long[n];
             for (int j = 0; j < n; j++) {
                 adjacency_matrix[i][j] = 0;
             }
@@ -171,7 +172,7 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter adjacency_list_converter = Converter(adjacency_list);
         Converter adjacency_matrix_converter = Converter(adjacency_matrix, 5);
         Converter edge_list_converter = Converter(edge_list, false);
-        std::pair<ll, std::vector<int>> expected = {-1,std::vector<int>()};
+        std::pair<long long, std::vector<int>> expected = {-1,std::vector<int>()};
 
         test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected);
 

@@ -4,8 +4,7 @@
 #include <random>
 #include <limits>
 
-using ll = long long;
-using Graph = std::vector<std::vector<std::pair<int, ll>>>; // first = to, second = weight
+using Graph = std::vector<std::vector<std::pair<int, long long>>>; // first = to, second = weight
 
 // graph generation
 Graph generate_random_graph(int num_nodes, int num_edges, int min_weight, int max_weight) {
