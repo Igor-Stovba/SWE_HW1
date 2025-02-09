@@ -12,9 +12,9 @@
 #include <iostream>
 
 /*
-* alias Graph is shortcut for graph representation in algorithms and Converter class
+* alias Graph_ is shortcut for graph representation in algorithms and Converter class
 */
-using Graph = std::vector<std::vector<std::pair<int, long long>>>; // first = dest, second = weight
+using Graph_ = std::vector<std::vector<std::pair<int, long long>>>; // first = dest, second = weight
 
 /*
 * Edge structure describes an edge in a graph. 
@@ -33,15 +33,15 @@ struct Converter {
     /*
     * Converter transforms input graph representations to our uniform format
     * Possible input formats: adjacency list, adjacency matrix, list of edges
-    * Output format: adjacency list (using Graph)
+    * Output format: adjacency list (using Graph_)
     */
-    Graph g; // Graph g is a result of convertions
+    Graph_ g; // Graph_ g is a result of convertions
 
-    Graph convert(long long** matrix, int size1d) {
+    Graph_ convert(long long** matrix, int size1d) {
         /*
         * It is used if input was an adjacency matrix
         */
-        Graph graph(size1d);
+        Graph_ graph(size1d);
         for (int i = 0; i < size1d; i++) {
             for (int j = 0; j < size1d; j++) {
                 // Loops aren't allowed + skip zeroes
@@ -59,7 +59,7 @@ struct Converter {
             n = std::max(n, std::max(source, dest));
         if (++n == 0) return {};
 
-        Graph graph(n);
+        Graph_ graph(n);
         for (auto& [source, dest, weight]: edge_list) {
             graph[source].emplace_back(dest, weight);
             if (!is_directed) 
@@ -69,7 +69,7 @@ struct Converter {
     }
 
     // Do nothing, input format = output format
-    Converter(const Graph& graph): g(graph) {}
+    Converter(const Graph_& graph): g(graph) {}
 
     // Adjancency matrix
     Converter(long long** matrix, int size1d): g(convert(matrix, size1d)) {}
@@ -84,7 +84,7 @@ dijkstra_high_density(int s, int f, Converter c) {
     * Optimal for graphs with high density
     * Complexity: O(n^2 + m)
     */
-    const Graph & g = c.g;
+    const Graph_ & g = c.g;
     int n = g.size();
     // s - start vertex, f - finish vertex
     assert(s >= 0 && s < n);
@@ -135,7 +135,7 @@ dijkstra_low_density(int s, int f, Converter c) {
     * Optimal for graphs with low density
     * Complexity: O(m * log(n))
     */
-    const Graph & g = c.g;
+    const Graph_ & g = c.g;
     int n = g.size();
     // s - start vertex, f - finish vertex
     assert(s >= 0 && s < n);
@@ -184,7 +184,7 @@ bellman_ford(int s, Converter c) {
     * Weight of every cycle should be non-negative
     * Complexity: O(mn)
     */
-    const Graph & g = c.g;
+    const Graph_ & g = c.g;
     int n = g.size();
     // s - start vertex
     assert(s >= 0 && s < n);
@@ -216,7 +216,7 @@ bellman_ford(int s, Converter c) {
 }
 
 static std::vector<long long>
-johnson(Graph & g) {
+johnson(Graph_ & g) {
     /*
     * Complexity: O(nm)
     * returns potentials!!!
@@ -252,7 +252,7 @@ astar(int s, int f, Converter c, long long (*heuristic)(int goal, int other)) {
     * modified Dijkstra's algorithm for searching path to a one specific point
     * by using some "good" estimator of distance to it for giving priority instead of pure distance 
     */
-    const Graph & g = c.g;
+    const Graph_ & g = c.g;
     int n = g.size();
     // s - start vertex, f - finish vertex
     assert(s >= 0 && s < n);
@@ -296,7 +296,7 @@ floyd_warshall(Converter c) {
     * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
     * which can be then used in function path_from_next to restore any path.
     */
-    const Graph & g = c.g;
+    const Graph_ & g = c.g;
 
     long long INF = std::numeric_limits<long long>::max();
     std::vector<std::vector<long long>>dist(g.size(), std::vector<long long>(g.size(), INF));
@@ -334,7 +334,7 @@ path_from_next(const std::vector<std::vector<int>>& next, int s, int f) {
         path.push_back(cur);
         cur = next[cur][finish];
     }
-    
+
     path.push_back(f);
     return path;
 }
