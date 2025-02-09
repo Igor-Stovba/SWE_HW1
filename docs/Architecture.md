@@ -14,3 +14,58 @@ struct Edge {
     
 * Below is our file structure. All implementations are in src folder, headers in include folder and tests and benchmarks are also in src folder.
 
+
+File structure:
+
+./
+
+  ├── Architecture.md
+
+  ├── CMakeLists.txt
+
+  ├── Config.cmake.in
+
+  ├── LICENSE
+
+  ├── README.md
+
+  ├── build_repo_structure.sh
+
+  ├── docs/
+
+  ├──   ├── Architecture.md
+
+  ├──   ├── Control_and_acceptance_procedure.md
+
+  ├──   ├── Requirements.md
+
+  ├──   ├── bench_report.txt
+
+  ├──   ├── convert.py
+
+  ├── include/
+
+  ├──   ├── converter.hpp
+
+  ├──   ├── edge.hpp
+
+  ├──   ├── spath.hpp
+
+  ├── src/
+
+  ├──   ├── bench.cpp
+
+  ├──   ├── converter.cpp
+
+  ├──   ├── spath.cpp
+
+  ├──   ├── tests.cpp
+
+  ├── utility/
+
+  ├──   ├── Architecture-template.md
+
+  ├──   ├── build_repo_structure.sh
+
+  ├──   ├── maze.png
+
