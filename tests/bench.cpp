@@ -70,17 +70,19 @@ static void BM_Dijkstra_low_density(benchmark::State& state) {
 
 
 BENCHMARK(BM_Dijkstra_high_density)
-    ->Args({100, 500, 1, 100})    // 100 узлов, 500 рёбер, веса до 100
-    ->Args({1000, 10000, 1, 100}) // 1000 узлов, 10000 рёбер, веса до 100
-    ->Args({5000, 50000, 1, 100}) // 5000 узлов, 50000 рёбер, веса до 100
-    ->Args({10000, 40000000, 1, 100}) // 10K узлов, 40'000'000 ребер 
-    ->Unit(benchmark::kMillisecond);
+    ->Args({100, 500, 1, 100})    // 100 vertexes, 500 edges, weight up to 100
+    ->Args({1000, 10000, 1, 100}) // 1000 vertexes, 10000 edges, weight up to 100
+    ->Args({5000, 50000, 1, 100}) // 5000 vertexes, 50000 edges, weight up to 100
+    ->Args({10000, 40000000, 1, 100}) // 10K vertexes, 40'000'000 edges, weight up to 100 
+    ->Unit(benchmark::kMillisecond)
+    ->MeasureProcessMemory();
 
 BENCHMARK(BM_Dijkstra_low_density)
-    ->Args({100, 500, 1, 100})    // 100 узлов, 500 рёбер, веса до 100
-    ->Args({1000, 10000, 1, 100}) // 1000 узлов, 10000 рёбер, веса до 100
-    ->Args({5000, 50000, 1, 100}) // 5000 узлов, 50000 рёбер, веса до 100
-    ->Args({10000, 40000000, 1, 100}) // 10K узлов, 40'000'000 ребер
-    ->Unit(benchmark::kMillisecond);
+    ->Args({100, 500, 1, 100})    // 100 vertexes, 500 edges, weight up to 100
+    ->Args({1000, 10000, 1, 100}) // 1000 vertexes, 10000 edges, weight up to 100
+    ->Args({5000, 50000, 1, 100}) // 5000 vertexes, 50000 edges, weight up to 100
+    ->Args({10000, 40000000, 1, 100}) // 10K vertexes, 40'000'000 edges, weight up to 100
+    ->Unit(benchmark::kMillisecond)
+    ->MeasureProcessMemory();
 
 BENCHMARK_MAIN();
