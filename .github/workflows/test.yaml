@@ -42,7 +42,6 @@ jobs:
           git add Architecture.md
           git commit --allow-empty -m "Updated Architecture.md" 
           git push origin HEAD:${{ github.ref_name }}
-
   run_benchmark:
     runs-on: ubuntu-latest
     
