@@ -42,6 +42,8 @@ File structure:
 
   ├──   ├── Requirements.md
 
+  ├──   ├── convert.py
+
   ├── include/
 
   ├──   ├── spath.hpp
