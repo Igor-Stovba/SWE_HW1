@@ -13,7 +13,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/tests.cpp")
+add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp")
 target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
 
 add_custom_target(Install 
@@ -26,4 +26,10 @@ target_include_directories(Tests
         PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+
+target_link_libraries(Tests PUBLIC Spath)
+
+add_library(Spath "${CMAKE_CURRENT_SOURCE_DIR}/src/converter.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/spath.cpp")
+
+target_include_directories(Spath PUBLIC include)
 
