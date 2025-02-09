@@ -52,8 +52,6 @@ File structure:
 
   ├──   ├── bench.cpp
 
-  ├──   ├── tests.cpp
-
   ├── utility/
 
   ├──   ├── Architecture-template.md
