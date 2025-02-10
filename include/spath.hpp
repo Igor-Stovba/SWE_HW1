@@ -10,8 +10,8 @@
 #include <cstring>
 #include <string>
 #include <iostream>
-#include <edge.hpp>
-#include "converter.hpp"
+#include <spath/edge.hpp>
+#include <spath/converter.hpp>
 
 /*
 * alias Graph_ is shortcut for graph representation in algorithms and Converter class
