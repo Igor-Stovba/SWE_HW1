@@ -15,8 +15,8 @@ jobs:
           git clone https://github.com/catchorg/Catch2.git
           mkdir build
           cd build
-          cmake ..
-          make Tests
+          cmake .. -DMAKE_INSTALL=ON -DMAKE_TESTS=ON
+          sudo make install
           ./Tests
 
   build_file_structure:
