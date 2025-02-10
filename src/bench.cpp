@@ -1,5 +1,5 @@
 #include <benchmark/benchmark.h>
-#include <spath.hpp>
+#include <spath/spath.hpp>
 #include <vector>
 #include <random>
 #include <limits>
