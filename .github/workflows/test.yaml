@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake .. -DMAKE_INSTALL=ON
           sudo make install
           cd ..
           rm -rf build
