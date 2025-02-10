@@ -1,5 +1,18 @@
 #include "spath.hpp"
 
+std::vector<int>
+path_from_parent(const std::vector<int>& parent, int start, int finish) {
+    std::vector<int> path {finish};
+    int tmp = finish;
+    while (parent[tmp] != start) {
+        path.push_back(parent[tmp]);
+        tmp = parent[tmp];
+    }
+    path.push_back(start);
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
 std::pair<long long, std::vector<int>>
 dijkstra_high_density(int start, int finish, Converter c) {
     /*
@@ -39,15 +52,7 @@ dijkstra_high_density(int start, int finish, Converter c) {
     }
     if (dist[finish] == INF) 
         return {-1, std::vector<int>()};
-
-    std::vector<int> path {finish};
-    int tmp = finish;
-    while (parent[tmp] != start) {
-        path.push_back(parent[tmp]);
-        tmp = parent[tmp];
-    }
-    path.push_back(start);
-    std::reverse(path.begin(), path.end());
+    auto path = path_from_parent(parent, start, finish);
     return {dist[finish], path};
 }
 
@@ -88,18 +93,12 @@ dijkstra_low_density(int start, int finish, Converter c) {
     
     if (dist[finish] == INF)
         return {-1, std::vector<int>()};
-    std::vector<int> path = {finish};
-    int tmp = finish;
-    while (parent[tmp] != start) {
-        path.push_back(parent[tmp]);
-        tmp = parent[tmp];
-    }
-    path.push_back(start);
-    std::reverse(path.begin(), path.end());
+    auto path = path_from_parent(parent, start, finish);
     return {dist[finish], path};
 }
 
-std::vector<long long>
+
+std::pair<std::vector<long long>,std::vector<int>>
 bellman_ford(int start, Converter c) {
     /*
     * Weight of every cycle should be non-negative
@@ -133,7 +132,16 @@ bellman_ford(int start, Converter c) {
 
         if (!changed) break;
     }
-    return dist;
+    return {dist, parent};
+}
+
+std::pair<long long, std::vector<int>> bellman_for_two_vertices(int start, int finish, Converter converter) {
+    auto [dist, parent] = bellman_ford(start, converter);
+    long long INF = std::numeric_limits<long long>::max();
+    if (dist[finish] == INF)
+        return {-1, std::vector<int>()};
+    std::vector<int> path = path_from_parent(parent, start, finish);
+    return std::pair<long long, std::vector<int>>{dist[finish], path};
 }
 
 std::vector<long long>
@@ -159,7 +167,7 @@ johnson(Graph_ & g) {
     g.push_back(std::move(fakeVertex)); // adding temp vertex
 
     // Find potentials with Ford-Bellman
-    std::vector<long long> potentials = bellman_ford(n, g);
+    std::vector<long long> potentials = bellman_ford(n, g).first;
     potentials.pop_back(); // deleting potential for temp vertex
 
     g.pop_back();  // deleting temp vertex

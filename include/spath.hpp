@@ -32,7 +32,7 @@ dijkstra_high_density(int start, int finish, Converter c);
 std::pair<long long, std::vector<int>>
 dijkstra_low_density(int start, int finish, Converter c);
 
-std::vector<long long>
+std::pair<std::vector<long long>,std::vector<int>>
 bellman_ford(int start, Converter c);
 
 std::vector<long long>
@@ -46,5 +46,11 @@ floyd_warshall(Converter c);
 
 std::vector<int> 
 path_from_next(const std::vector<std::vector<int>>& next, int start, int finish);
+
+std::vector<int>
+path_from_parent(const std::vector<int>& parent, int start, int finish);
+
+std::pair<long long, std::vector<int>>
+bellman_for_two_vertices(int start, int finish, Converter c);
 
 #endif

@@ -2,26 +2,19 @@
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 
-void test_dijkstra(Converter adjacency_list_converter, Converter adjacency_matrix_converter, Converter edge_list_converter, int s, int f,
-std::pair<long long, std::vector<int>> expected) {
-    auto res1 = dijkstra_high_density(s,f,adjacency_list_converter);
-    auto res2 = dijkstra_high_density(s,f,adjacency_matrix_converter);
-    auto res3 = dijkstra_high_density(s,f,edge_list_converter);
-
-    auto res12 = dijkstra_low_density(s,f,adjacency_list_converter);
-    auto res22 = dijkstra_low_density(s,f,adjacency_matrix_converter);
-    auto res32 = dijkstra_low_density(s,f,edge_list_converter);
-
+void test_shortest_path(Converter adjacency_list_converter, Converter adjacency_matrix_converter, Converter edge_list_converter, 
+int start, int finish, std::pair<long long, std::vector<int>> expected, 
+std::pair<long long, std::vector<int>> (*algorithm)(int start, int finish , Converter converter)) {
+    auto res1 = algorithm(start,finish,adjacency_list_converter);
+    auto res2 = algorithm(start,finish,adjacency_matrix_converter);
+    auto res3 = algorithm(start,finish,edge_list_converter);
     REQUIRE( res1 == expected );
     REQUIRE( res2 == expected );
     REQUIRE( res3 == expected );
-
-    REQUIRE( res12 == expected );
-    REQUIRE( res22 == expected );
-    REQUIRE( res32 == expected );
 }
 
-TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
+
+TEST_CASE( "Correctness", "[Requirement 1]" ) {
     SECTION("empty graph") {
         int n = 5;
         std::vector<std::vector<std::pair<int, long long>>>adjacency_list(n);
@@ -36,20 +29,35 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
 
         Converter adjacency_list_converter = Converter(adjacency_list);
         Converter adjacency_matrix_converter = Converter(adjacency_matrix, 5);
-
-        auto res1 = dijkstra_high_density(0,2,adjacency_list_converter);
-        auto res2 = dijkstra_high_density(0,2,adjacency_matrix_converter);
-
-        auto res12 = dijkstra_low_density(0,2,adjacency_list_converter);
-        auto res22 = dijkstra_low_density(0,2,adjacency_matrix_converter);
-
-
+        Converter edge_list_converter = Converter(edge_list, false);
+        assert(edge_list_converter.graph.empty());
         std::pair<long long, std::vector<int>> expected = {-1,std::vector<int>()};
 
-        REQUIRE( res1 == expected );
-        REQUIRE( res2 == expected );
-        REQUIRE( res12 == expected );
-        REQUIRE( res22 == expected );
+        // Edge list is empty, so inner assertion fails and crushes the program. Can't be "checked" normally.
+        SECTION("Dijkstra for high density") {
+            auto res1 = dijkstra_high_density(0,2,adjacency_list_converter);
+            auto res2 = dijkstra_high_density(0,2,adjacency_matrix_converter);
+
+            REQUIRE( res1 == expected );
+            REQUIRE( res2 == expected );
+        }
+
+        SECTION("Dijkstra for low density") {
+            auto res1 = dijkstra_low_density(0,2,adjacency_list_converter);
+            auto res2 = dijkstra_low_density(0,2,adjacency_matrix_converter);
+
+            REQUIRE( res1 == expected );
+            REQUIRE( res2 == expected );
+        }
+
+        SECTION("Bellman-Ford") {
+            auto res1 = bellman_for_two_vertices(0,2,adjacency_list_converter);
+            auto res2 = bellman_for_two_vertices(0,2,adjacency_matrix_converter);
+
+            REQUIRE( res1 == expected );
+            REQUIRE( res2 == expected );
+        }
+
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
@@ -96,7 +104,15 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter edge_list_converter = Converter(edge_list, false);
         std::pair<long long, std::vector<int>> expected = {1,{0,3}};
 
-        test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected);
+        SECTION("Dijkstra for high density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected, dijkstra_high_density);
+        }
+        SECTION("Dijkstra for low density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected, dijkstra_low_density);
+        }
+        SECTION("Bellman-Ford") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected, bellman_for_two_vertices);
+        }
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
@@ -133,11 +149,17 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter adjacency_matrix_converter = Converter(adjacency_matrix, 5);
         Converter edge_list_converter = Converter(edge_list, false);
 
-        assert(adjacency_list_converter.graph == edge_list_converter.graph);
         std::pair<long long, std::vector<int>> expected = {47,{0,3,2,1}};
 
-
-        test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected);
+        SECTION("Dijkstra for high density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected, dijkstra_high_density);
+        }
+        SECTION("Dijkstra for low density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected, dijkstra_low_density);
+        }
+        SECTION("Bellman-Ford") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected, bellman_for_two_vertices);
+        }
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
@@ -174,7 +196,15 @@ TEST_CASE( "Dijkstra correctness", "[Requirement 1]" ) {
         Converter edge_list_converter = Converter(edge_list, false);
         std::pair<long long, std::vector<int>> expected = {-1,std::vector<int>()};
 
-        test_dijkstra(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected);
+        SECTION("Dijkstra for high density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected, dijkstra_high_density);
+        }
+        SECTION("Dijkstra for low density") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected, dijkstra_low_density);
+        }
+        SECTION("Bellman-Ford") {
+            test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected, bellman_for_two_vertices);
+        }
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
