@@ -55,7 +55,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          sudo make Install
+          sudo make install
           cd ..
           rm -rf build
 
