@@ -138,14 +138,14 @@ BENCHMARK(BM_Dijkstra_high_density)
     ->Args({100, 500, 1, 100})    // 100 vertexes, 500 edges, weight up to 100
     ->Args({1000, 10000, 1, 100}) // 1000 vertexes, 10K edges, weight up to 100
     ->Args({5000, 50000, 1, 100}) // 5K vertexes, 50K edges, weight up to 100
-    ->Args({10000, 40000000, 1, 100}) // 10K vertexes, 400K edges, weight up to 100 
+    ->Args({10000, 400000, 1, 100}) // 10K vertexes, 400K edges, weight up to 100 
     ->Unit(benchmark::kMillisecond);
 
 BENCHMARK(BM_Dijkstra_low_density)
     ->Args({100, 500, 1, 100})    // 100 vertexes, 500 edges, weight up to 100
     ->Args({1000, 10000, 1, 100}) // 1000 vertexes, 10K edges, weight up to 100
     ->Args({5000, 50000, 1, 100}) // 5K vertexes, 50K edges, weight up to 100
-    ->Args({10000, 40000000, 1, 100}) // 10K vertexes, 400K edges, weight up to 100
+    ->Args({10000, 400000, 1, 100}) // 10K vertexes, 400K edges, weight up to 100
     ->Unit(benchmark::kMillisecond);
 
 BENCHMARK(BM_bellman_ford)

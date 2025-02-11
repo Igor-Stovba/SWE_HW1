@@ -21,9 +21,9 @@ jobs:
           cmake --build . --target Tests
           ./Tests
 
-  build_file_structure:
+  run_benchmark:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,24 +33,6 @@ jobs:
           cp utility/Architecture-template.md Architecture.md
           cp utility/build_repo_structure.sh ./
           ./build_repo_structure.sh Architecture.md
-      - name: Push updated version of Architecture
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --local user.name "github-actions"
-          git config --local user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-                                        
-          git add Architecture.md
-          git commit --allow-empty -m "Updated Architecture.md" 
-          git push origin HEAD:${{ github.ref_name }}
-
-  run_benchmark:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: install our lib
         run: |
@@ -66,6 +48,7 @@ jobs:
         run: |
           git clone https://github.com/google/benchmark.git
           cd benchmark
+          git checkout v1.8.3
           cmake -E make_directory "build"
           cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
           cmake --build "build" --config Release
@@ -78,9 +61,21 @@ jobs:
 
       - name: run bench
         run: |
-          g++ src/bench.cpp -std=c++20 -I jngen/ -lbenchmark -lpthread -lSpath -o bench
+          g++ src/bench.cpp -std=c++20 -I jngen/ -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lSpath -o bench
           ./bench --benchmark_format=json > bench_result.json
       
       - name: forming bench report
         run: |
           python3 docs/convert.py bench_result.json docs/bench_report.txt
+
+      - name: Push updated version of Architecture
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+                                        
+          git add docs/bench_report.txt Architecture.md
+          git commit --allow-empty -m "Updated bench_report.txt + Update Architecture.md" 
+          git push origin HEAD:${{ github.ref_name }} 
