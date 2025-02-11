@@ -96,4 +96,5 @@ jobs:
                                         
           git add docs/bench_report.txt
           git commit --allow-empty -m "Updated bench_report.txt" 
-          git push origin HEAD:${{ github.ref_name }} --force
+          git pull origin AA-dev
+          git push origin HEAD:${{ github.ref_name }} 
