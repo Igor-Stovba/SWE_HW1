@@ -17,7 +17,7 @@ jobs:
           cd build
           cmake ..
           cmake --build .
-          cmake --install .
+          sudo cmake --install .
           ./Tests
 
   build_file_structure:
@@ -57,7 +57,7 @@ jobs:
           cd build
           cmake ..
           cmake --build . --target Spath
-          cmake --install .
+          sudo cmake --install .
           cd ..
           rm -rf build
 
