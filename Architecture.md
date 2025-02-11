@@ -28,6 +28,8 @@ File structure:
 
   ├── CMakeLists.txt
 
+  ├── Config.cmake.in
+
   ├── LICENSE
 
   ├── README.md
