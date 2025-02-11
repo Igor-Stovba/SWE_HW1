@@ -1,12 +1,7 @@
 * Our library is header-only. It implements algorithms as functions.
-* We have Converter struct for users don't have to think about graph representation. Any supported representation will work fine. All algorithms except for Lee's take Converter class as an argument and extract the graph from it. The user only have to pass Converter(graph) as an argument. 
+* We have Converter struct for users don't have to think about graph representation. Any supported representation will work fine. All algorithms take Converter class as an argument and extract the graph from it. The user only have to pass Converter(graph) as an argument. 
 * Converter class constructs adjacency list from any graph and saves it as data member. 
 * All of our algorithms use adjacency list representation.
-* Lee's algorithm takes bool matrices instead of graph. These matrices represent mazes like these:
-<p align="center">
-<img src="utility/maze.png" width="250" height="175" />
-</p>
-
 * If a user has edge list representation we require for him to make it using our Edge struct which is:
 
 ```
@@ -17,7 +12,7 @@ struct Edge {
 };
 ```
     
-* Below is our file structure. All implementations are in include/spath.hpp and tests and benchmarks are in tests/ folder.
+* Below is our file structure. All implementations are in src folder, headers in include folder and tests and benchmarks are also in src folder.
 
 
 File structure:
