@@ -1,11 +1,13 @@
 # C++ library for finding the shortest paths
 
-`spath.hpp` is a header-only C++ library for finding the shortest paths in graphs using various algorithms. The library provides efficient and versatile implementations suitable for different graph densities and use cases.
+Spath is a static C++ library for finding the shortest paths in graphs using various algorithms. The library provides efficient and versatile implementations suitable for different graph densities and use cases.
 
 ## Features
 
-- **Dijkstra's Algorithm**  
-  - Separate implementations for low-density (sparse) and high-density (dense) graphs.
+- **Dijkstra's Algorithm (Low density version)**  
+  - Optimized for graphs with low density
+- **Dijkstra's Algorithm (High density version)**  
+  - Optimized for graphs with high density
 - **Ford-Bellman Algorithm**  
   - Supports graphs with negative weight edges.
 - **Johnson's Algorithm**  
@@ -14,8 +16,6 @@
   - Comprehensive all-pairs shortest path solution for dense graphs.
 - **A\* Algorithm**  
   - Optimized for pathfinding with heuristics in weighted graphs.
-- **Lee Algorithm**  
-  - BFS-like algorithm for pathfinding in maze-like graphs
 
 ## Time complexity
 
@@ -27,15 +27,23 @@
 | Johnson            | Sparse graphs, all-pairs shortest paths | O(V^2 * log V + V * E) |
 | Floyd-Warshall     | Dense graphs, all-pairs shortest paths | O(V^3)                 |
 | A*                 | Pathfinding with heuristics           | O(m*log(n)*complexity(heuristic))       |
-| Lee Algorithm       | Special-case optimizations            | O(rows*cols)                     |
 
 
 ## Installation
 
-Simply include the `spath.hpp` file in your C++ project. The library is header-only, so no additional compilation or linking is required.
+Clone our library. then build and install with cmake
+
+```
+mkdir build
+cd build
+cmake ..
+cmake --build . --target Spath
+cmake --install .
+```
+This will add our library to your system path. After that you can use it like:
 
 ```cpp
-#include "spath.hpp"
+#include <spath/spath.hpp>
 ```
 
 # Testing
