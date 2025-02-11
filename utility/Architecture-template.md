@@ -1,4 +1,4 @@
-* Our library is header-only. It implements algorithms as functions.
+* Our library is static. We have separate headers and cpp files that should be built into an object file and then the library can be installed.
 * We have Converter struct for users don't have to think about graph representation. Any supported representation will work fine. All algorithms take Converter class as an argument and extract the graph from it. The user only have to pass Converter(graph) as an argument. 
 * Converter class constructs adjacency list from any graph and saves it as data member. 
 * All of our algorithms use adjacency list representation.
