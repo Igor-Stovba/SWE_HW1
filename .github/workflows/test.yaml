@@ -15,8 +15,9 @@ jobs:
           git clone https://github.com/catchorg/Catch2.git
           mkdir build
           cd build
-          cmake .. -DMAKE_INSTALL=ON -DMAKE_TESTS=ON
-          sudo make install
+          cmake ..
+          cmake --build .
+          cmake --install .
           ./Tests
 
   build_file_structure:
@@ -54,8 +55,9 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DMAKE_INSTALL=ON
-          sudo make install
+          cmake ..
+          cmake --build . --target Spath
+          cmake --install .
           cd ..
           rm -rf build
 
