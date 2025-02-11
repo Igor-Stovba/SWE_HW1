@@ -75,7 +75,7 @@ jobs:
 
       - name: run bench
         run: |
-          g++ src/bench.cpp -std=c++20 -I jngen/ -isystem -lbenchmark -lpthread -o bench
+          g++ src/bench.cpp -std=c++20 -I jngen/ -lbenchmark -lpthread -lSpath -o bench
           ./bench --benchmark_format=json > bench_result.json
       
       - name: forming bench report
