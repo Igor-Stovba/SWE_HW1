@@ -1,7 +1,5 @@
 #include "converter.hpp"
 
-
-
     Graph_ Converter::convert(long long** matrix, int size1d) {
         /*
         * It is used if input was an adjacency matrix

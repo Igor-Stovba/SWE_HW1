@@ -3,10 +3,10 @@
 std::vector<int>
 path_from_parent(const std::vector<int>& parent, int start, int finish) {
     std::vector<int> path {finish};
-    int tmp = finish;
-    while (parent[tmp] != start) {
-        path.push_back(parent[tmp]);
-        tmp = parent[tmp];
+    int cur = finish;
+    while (parent[cur] != start) {
+        path.push_back(parent[cur]);
+        cur = parent[cur];
     }
     path.push_back(start);
     std::reverse(path.begin(), path.end());
@@ -14,17 +14,18 @@ path_from_parent(const std::vector<int>& parent, int start, int finish) {
 }
 
 std::pair<long long, std::vector<int>>
-dijkstra_high_density(int start, int finish, Converter c) {
+dijkstra_high_density(int start, int finish, Converter converter) {
     /*
     * Optimal for graphs with high density
     * Complexity: O(n^2 + m)
     */
-    const Graph_ & g = c.graph;
-    int n = g.size();
+    const Graph_ & graph = converter.graph;
+    int n = graph.size();
     // start - start vertex, finish - finish vertex
     assert(start >= 0 && start < n);
     assert(finish >= 0 && finish < n);
 
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
     std::vector<long long> dist(n, INF);
     std::vector<int> parent(n, -1);
@@ -40,9 +41,9 @@ dijkstra_high_density(int start, int finish, Converter c) {
         if (dist[vertex] == INF) break;
         used[vertex] = true;
 
-        for (int j = 0; j < g[vertex].size(); j++) {
-            int u = g[vertex][j].first; // u is adjacent vertex to vertex
-            long long weight = g[vertex][j].second;
+        for (int j = 0; j < graph[vertex].size(); j++) {
+            int u = graph[vertex][j].first; // u is adjacent vertex to vertex
+            long long weight = graph[vertex][j].second;
             
             if (dist[u] > dist[vertex] + weight) {
                 dist[u] = dist[vertex] + weight;
@@ -57,17 +58,18 @@ dijkstra_high_density(int start, int finish, Converter c) {
 }
 
 std::pair<long long, std::vector<int>>
-dijkstra_low_density(int start, int finish, Converter c) {
+dijkstra_low_density(int start, int finish, Converter converter) {
     /*
     * Optimal for graphs with low density
     * Complexity: O(m * log(n))
     */
-    const Graph_ & g = c.graph;
-    int n = g.size();
+    const Graph_ & graph = converter.graph;
+    int n = graph.size();
     // start - start vertex, finish - finish vertex
     assert(start >= 0 && start < n);
     assert(finish >= 0 && finish < n);
 
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
     std::vector<long long> dist(n, INF);
     std::vector<int> parent(n, -1);
@@ -79,7 +81,7 @@ dijkstra_low_density(int start, int finish, Converter c) {
     while (!estimates.empty()) {
         auto [est, v] = *estimates.begin();
         estimates.erase(estimates.begin());
-        for (auto& item: g[v]) {
+        for (auto& item: graph[v]) {
             int to = item.first;
             long long weight = item.second;
             if (dist[to] > dist[v] + weight) {
@@ -99,16 +101,17 @@ dijkstra_low_density(int start, int finish, Converter c) {
 
 
 std::pair<std::vector<long long>,std::vector<int>>
-bellman_ford(int start, Converter c) {
+bellman_ford(int start, Converter converter) {
     /*
     * Weight of every cycle should be non-negative
     * Complexity: O(mn)
     */
-    const Graph_ & g = c.graph;
-    int n = g.size();
+    const Graph_ & graph = converter.graph;
+    int n = graph.size();
     // start - start vertex
     assert(start >= 0 && start < n);
 
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
     // O(n) memory
     std::vector<int> parent(n, -1);
@@ -119,7 +122,7 @@ bellman_ford(int start, Converter c) {
         bool changed = false; // Flag for early break
 
         for (int v = 0; v < n; v++) {
-            for (auto& item : g[v]) {
+            for (auto& item : graph[v]) {
                 int u = item.first;
                 long long weight = item.second;
                 if (dist[u] != INF && dist[u] + weight < dist[v]) {
@@ -137,6 +140,8 @@ bellman_ford(int start, Converter c) {
 
 std::pair<long long, std::vector<int>> bellman_for_two_vertices(int start, int finish, Converter converter) {
     auto [dist, parent] = bellman_ford(start, converter);
+
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
     if (dist[finish] == INF)
         return {-1, std::vector<int>()};
@@ -145,7 +150,7 @@ std::pair<long long, std::vector<int>> bellman_for_two_vertices(int start, int f
 }
 
 std::vector<long long>
-johnson(Graph_ & g) {
+johnson(Graph_ & graph) {
     /*
     * Complexity: O(nm)
     * returns potentials!!!
@@ -153,7 +158,7 @@ johnson(Graph_ & g) {
     * It is well when you need to find multiple times the shortest path on a given graph
     */
 
-    int n = g.size();
+    int n = graph.size();
 
     /*
     * fakeVertex is used for creating one temp vertex which is needed 
@@ -164,32 +169,33 @@ johnson(Graph_ & g) {
     for (int i = 0; i < n; i++)
         fakeVertex[i] = {i, 0};
 
-    g.push_back(std::move(fakeVertex)); // adding temp vertex
+    graph.push_back(std::move(fakeVertex)); // adding temp vertex
 
     // Find potentials with Ford-Bellman
-    std::vector<long long> potentials = bellman_ford(n, g).first;
+    std::vector<long long> potentials = bellman_ford(n, graph).first;
     potentials.pop_back(); // deleting potential for temp vertex
 
-    g.pop_back();  // deleting temp vertex
+    graph.pop_back();  // deleting temp vertex
     return potentials; 
 }
 
 std::pair<long long, std::vector<int>> 
-astar(int start, int finish, Converter c, long long (*heuristic)(int goal, int other)) {
+astar(int start, int finish, Converter converter, long long (*heuristic)(int goal, int other)) {
     /*
     * Complexity: O(m*log(n)*complexity(heuristic))
     * modified Dijkstra's algorithm for searching path to a one specific point
     * by using some "good" estimator of distance to it for giving priority instead of pure distance 
     */
-    const Graph_ & g = c.graph;
-    int n = g.size();
+    const Graph_ & graph = converter.graph;
+    int n = graph.size();
     // start - start vertex, finish - finish vertex
     assert(start >= 0 && start < n);
     assert(finish >= 0 && finish < n);
 
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
     std::vector<long long>dist(n, INF);
-    std::vector<long long>parent(n, -1);
+    std::vector<int>parent(n, -1);
     dist[start] = 0;
     std::set<std::pair<long long,long long>>estimates;
     estimates.insert({heuristic(finish, start), start});
@@ -197,7 +203,7 @@ astar(int start, int finish, Converter c, long long (*heuristic)(int goal, int o
         auto [est, v] = *estimates.begin();
         if (v == finish) break;
         estimates.erase(estimates.begin());
-        for (auto& [neigh, weight]: g[v]) {
+        for (auto& [neigh, weight]: graph[v]) {
             if (dist[neigh] > dist[v]+weight) {
                 dist[neigh] = dist[v]+weight;
                 estimates.insert({dist[neigh]+heuristic(finish, neigh), neigh});
@@ -207,38 +213,32 @@ astar(int start, int finish, Converter c, long long (*heuristic)(int goal, int o
     }
     if (dist[finish] == INF) 
         return {-1, std::vector<int>()};
-       
-    std::vector<int>path;
-    int tmp = finish;
-    while (tmp != -1) {
-        path.push_back(tmp);
-        tmp = parent[tmp];
-    }
-    std::reverse(path.begin(), path.end());
+    auto path = path_from_parent(parent, start, finish);
     return {dist[finish], path};
 }
 
 std::pair<std::vector<std::vector<int>>, std::vector<std::vector<long long>>> 
-floyd_warshall(Converter c) {
+floyd_warshall(Converter converter) {
     /*
     * Complexity: O(n^3)
     * computes distance from all to all and returns matrix next[u][v] which holds value for the next vertice on the path from u to v,
     * which can be then used in function path_from_next to restore any path.
     */
-    const Graph_ & g = c.graph;
+    const Graph_ & graph = converter.graph;
 
+    // safe, we do only comparisons, no arithmetic operations with INF
     long long INF = std::numeric_limits<long long>::max();
-    std::vector<std::vector<long long>>dist(g.size(), std::vector<long long>(g.size(), INF));
-    std::vector<std::vector<int>>next(g.size(), std::vector<int>(g.size(), -1));
-    for (int i = 0; i < g.size(); i++) {
-        for (const auto&[v, weight]: g[i]) {
+    std::vector<std::vector<long long>>dist(graph.size(), std::vector<long long>(graph.size(), INF));
+    std::vector<std::vector<int>>next(graph.size(), std::vector<int>(graph.size(), -1));
+    for (int i = 0; i < graph.size(); i++) {
+        for (const auto&[v, weight]: graph[i]) {
             dist[i][v] = weight;
             next[i][v] = v;
         }
     }
-    for (int i = 0; i < g.size(); i++) {
-        for (int u = 0; u < g.size(); u++) {
-            for (int v = 0; v < g.size(); v++) {
+    for (int i = 0; i < graph.size(); i++) {
+        for (int u = 0; u < graph.size(); u++) {
+            for (int v = 0; v < graph.size(); v++) {
                 if (dist[u][i] != INF && dist[i][v] != INF) {
                     if (dist[u][i] + dist[i][v] < dist[u][v]) {
                         dist[u][v] = dist[u][i] + dist[i][v];
