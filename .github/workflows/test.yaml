@@ -16,8 +16,9 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          cmake --build .
+          cmake --build . --target Spath
           sudo cmake --install .
+          cmake --build . --target Tests
           ./Tests
 
   build_file_structure:
