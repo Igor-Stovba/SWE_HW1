@@ -33,6 +33,7 @@ jobs:
           cp utility/Architecture-template.md Architecture.md
           cp utility/build_repo_structure.sh ./
           ./build_repo_structure.sh Architecture.md
+          mv Architecture.md docs/
 
       - name: install our lib
         run: |
@@ -76,6 +77,6 @@ jobs:
           git config --local user.email "github-actions@github.com"
           git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
                                         
-          git add docs/bench_report.txt Architecture.md
+          git add docs/bench_report.txt docs/Architecture.md
           git commit --allow-empty -m "Updated bench_report.txt + Update Architecture.md" 
           git push origin HEAD:${{ github.ref_name }} 
