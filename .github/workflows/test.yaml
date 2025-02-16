@@ -1,0 +1,82 @@
+name: CI Workflow
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure Cmake
+        run: |
+          git clone https://github.com/catchorg/Catch2.git
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --target Spath
+          sudo cmake --install .
+          cmake --build . --target Tests
+          ./Tests
+
+  run_benchmark:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get file structure
+        run: | 
+          cp utility/Architecture-template.md Architecture.md
+          cp utility/build_repo_structure.sh ./
+          ./build_repo_structure.sh Architecture.md
+          mv Architecture.md docs/
+
+      - name: install our lib
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --target Spath
+          sudo cmake --install .
+          cd ..
+          rm -rf build
+
+      - name: install google benchmark
+        run: |
+          git clone https://github.com/google/benchmark.git
+          cd benchmark
+          git checkout v1.8.3
+          cmake -E make_directory "build"
+          cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
+          cmake --build "build" --config Release
+          sudo cmake --build "build" --config Release --target install
+          cd ..
+
+      - name: download jngen
+        run: |
+          git clone https://github.com/ifsmirnov/jngen.git     
+
+      - name: run bench
+        run: |
+          g++ src/bench.cpp -std=c++20 -I jngen/ -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -lSpath -o bench
+          ./bench --benchmark_format=json > bench_result.json
+      
+      - name: forming bench report
+        run: |
+          python3 docs/convert.py bench_result.json docs/bench_report.txt
+
+      - name: Push updated version of Architecture
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+                                        
+          git add docs/bench_report.txt docs/Architecture.md
+          git commit --allow-empty -m "Updated bench_report.txt + Update Architecture.md" 
+          git push origin HEAD:${{ github.ref_name }} 
