@@ -54,10 +54,27 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp")
 target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
-
-# target_include_directories(Tests 
-#         PRIVATE
-#         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-# )
-
 target_link_libraries(Tests PUBLIC Spath)
+
+# Fetch jngen 
+include(FetchContent)
+FetchContent_Declare(
+        jngen
+        GIT_REPOSITORY https://github.com/ifsmirnov/jngen.git
+        GIT_TAG master
+)
+FetchContent_MakeAvailable(jngen)
+
+# Fetch Google Benchmark 
+include(FetchContent)
+FetchContent_Declare(
+        googlebenchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG v1.9.1
+)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)  # Disable GoogleTest to avoid failure
+FetchContent_MakeAvailable(googlebenchmark)
+add_executable(Bench "${CMAKE_CURRENT_SOURCE_DIR}/src/bench.cpp")
+target_include_directories(Bench PRIVATE ${jngen_SOURCE_DIR})
+target_link_libraries(Bench PRIVATE benchmark::benchmark)
+target_link_libraries(Bench PRIVATE Spath)
