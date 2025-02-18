@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 #include "graph.h"
-#include <spath/spath.hpp>
+#include "../include/spath.hpp"
 #include <vector>
 #include <random>
 #include <memory>
