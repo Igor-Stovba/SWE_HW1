@@ -80,12 +80,12 @@ target_link_libraries(Bench PRIVATE Spath)
 
 
 
-# add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp")
-# target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
+add_executable(Tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp")
+target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
 
-# target_include_directories(Tests 
-#         PRIVATE
-#         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-# )
+target_include_directories(Tests 
+        PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
-# target_link_libraries(Tests PUBLIC Spath)
+target_link_libraries(Tests PUBLIC Spath)

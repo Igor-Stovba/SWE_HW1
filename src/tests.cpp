@@ -1,4 +1,4 @@
-#include <spath/spath.hpp>
+#include "../include/spath.hpp"
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 
