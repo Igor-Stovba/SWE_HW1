@@ -44,8 +44,7 @@ jobs:
 
       - name: run bench and make report
         run: |
-          pwd
-          ls
+          cd build
           ./Bench --benchmark_format=json > bench_result.json
           cd ..
           python3 docs/convert.py build/bench_result.json docs/bench_report.txt
