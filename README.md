@@ -55,3 +55,9 @@ We benchmarked our algorithms (`bench.cpp`) with help of Google Benchmark. You c
 
 This project is licensed under the MIT License.
   
+## How to contribute
+
+Make a fork of repository, make changes and open Pull Request.
+
+To add a new algorithm, you need to write declaration into `include/spath.hpp`, definition into `src/spath.cpp`, functional tests into `src/tests.cpp` and benchmark tests into `src/bench.cpp`.
+Then update `Readme.md` and `Wiki`.
