@@ -12,7 +12,6 @@ jobs:
       
       - name: Configure Cmake
         run: |
-          git clone https://github.com/catchorg/Catch2.git
           mkdir build
           cd build
           cmake ..
@@ -34,8 +33,7 @@ jobs:
           cp utility/build_repo_structure.sh ./
           ./build_repo_structure.sh Architecture.md
           mv Architecture.md docs/
-
-      - name: install libs
+          
       - name: install libs
         run: |
           mkdir build
