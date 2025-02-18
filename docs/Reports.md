@@ -1,5 +1,7 @@
 # Benchmark reports on different OS
 These file contains different bench reports ran on 3 OS (Linux distributions).
+File `docs/bench_report.txt` reflects benchmark results from CI. 
+
 Platform parameters:
 ```
 Model CPU name: AMD Ryzen 7 4800H with Radeon Graphics
@@ -15,6 +17,16 @@ Memory:
     Speed: 3200 MT/s
     RAM size: 16GB
 ```
+## Preparation
+To execute tests we used OS on a virtual machine (full virtualization). We built the object file, restarted the system, turned off battery safe mode, turned off auto updates:
+```
+sudo systemctl stop apt-daily.service
+sudo systemctl stop apt-daily-upgrade.service
+```
+Ran with taskset -c 0 to attach our executable to a single core and avoid context switch:
+```
+taskset -c 0 ./Bench --benchmark_format=json > bench_result.json
+``` 
 ## Ubuntu jammy
 ```
 Benchmark Report
