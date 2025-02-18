@@ -17,8 +17,6 @@ jobs:
           cmake ..
           cmake --build .
           sudo cmake --install .
-          pwd
-          ls
           ./Tests
           
 
@@ -46,6 +44,8 @@ jobs:
 
       - name: run bench and make report
         run: |
+          pwd
+          ls
           ./Bench --benchmark_format=json > bench_result.json
           cd ..
           python3 docs/convert.py build/bench_result.json docs/bench_report.txt
