@@ -36,6 +36,7 @@ jobs:
           mv Architecture.md docs/
 
       - name: install libs
+      - name: install libs
         run: |
           mkdir build
           cd build
