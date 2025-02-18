@@ -37,8 +37,8 @@ Clone our library. then build and install with cmake
 mkdir build
 cd build
 cmake ..
-cmake --build . --target Spath
-cmake --install .
+cmake --build .
+sudo cmake --install .
 ```
 This will add our library to your system path. After that you can use it like:
 
