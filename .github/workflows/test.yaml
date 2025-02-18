@@ -17,6 +17,8 @@ jobs:
           cmake ..
           cmake --build .
           sudo cmake --install .
+          pwd
+          ls
           ./Tests
           
 
@@ -33,7 +35,7 @@ jobs:
           cp utility/build_repo_structure.sh ./
           ./build_repo_structure.sh Architecture.md
           mv Architecture.md docs/
-          
+
       - name: install libs
         run: |
           mkdir build
