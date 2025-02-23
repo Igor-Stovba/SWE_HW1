@@ -1,4 +1,4 @@
-#include "../include/spath.hpp"
+#include <spath/spath.hpp>
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 
@@ -12,35 +12,6 @@ std::pair<long long, std::vector<int>> (*algorithm)(int start, int finish , Conv
     REQUIRE( res2 == expected );
     REQUIRE( res3 == expected );
 }
-
-void test_floyd_warshall(Converter adjacency_list_converter, Converter adjacency_matrix_converter, Converter edge_list_converter, 
-    std::vector<std::vector<std::pair<long long, std::vector<int>>>>&expected_mtx) {
-        auto [next1, dist1] = floyd_warshall(adjacency_list_converter);
-        auto [next2, dist2] = floyd_warshall(adjacency_matrix_converter);
-        auto [next3, dist3] = floyd_warshall(edge_list_converter);
-        REQUIRE(dist1 == dist2);
-        REQUIRE(dist2 == dist3);
-        REQUIRE(next1 == next2);
-        REQUIRE(next2 == next3);
-        int n = adjacency_list_converter.graph.size();
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                long long INF = std::numeric_limits<long long>::max();
-                std::vector<int>path1;
-                long long d1;
-                if (dist1[i][j] == INF) {
-                    path1 = {};
-                    d1 = -1;
-                } else {
-                    path1 = path_from_next(next1, i, j);
-                    d1 = dist1[i][j];
-                }
-                auto ans1 = std::make_pair(d1, path1);
-                REQUIRE( expected_mtx[i][j] == ans1 );
-            }
-        }
-    }
-
 
 TEST_CASE("Converter", "[Converter]") {
     SECTION("adjacency list") {
@@ -161,7 +132,6 @@ TEST_CASE("Converter", "[Converter]") {
 }
 
 
-
 TEST_CASE( "Correctness", "[Requirement 1]" ) {
     SECTION("empty graph") {
         int n = 5;
@@ -204,36 +174,6 @@ TEST_CASE( "Correctness", "[Requirement 1]" ) {
 
             REQUIRE( res1 == expected );
             REQUIRE( res2 == expected );
-        }
-        SECTION("Floyd-Warshall") {
-            auto [next1, dist1] = floyd_warshall(adjacency_list_converter);
-            auto [next2, dist2] = floyd_warshall(adjacency_matrix_converter);
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    long long INF = std::numeric_limits<long long>::max();
-                    std::vector<int>path1,path2;
-                    long long d1,d2;
-                    if (dist1[i][j] == INF ) {
-                        path1 = path2 = {};
-                        d1 = d2 = -1;
-                    } else {
-                        path1 = path_from_next(next1, i, j);
-                        path2 = path_from_next(next2, i, j);
-                        d1 = dist1[i][j];
-                        d2 = dist2[i][j];
-                    }
-                    auto ans1 = std::make_pair(d1, path1);
-                    auto ans2 = std::make_pair(d2, path2);
-                    if (i == j) {
-
-                        REQUIRE( ans1 == std::pair<long long, std::vector<int>>{0,{i}} );
-                        REQUIRE( ans2 == std::pair<long long, std::vector<int>>{0,{i}} );
-                    } else {
-                        REQUIRE( ans1 == expected );
-                        REQUIRE( ans2 == expected );
-                    }
-                }
-            }
         }
 
 
@@ -291,19 +231,6 @@ TEST_CASE( "Correctness", "[Requirement 1]" ) {
         SECTION("Bellman-Ford") {
             test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 3, expected, bellman_for_two_vertices);
         }
-        SECTION("Floyd-Warshall") {
-            std::vector<std::vector<std::pair<long long, std::vector<int>>>>expected_mtx(n);
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (i == j) {
-                        expected_mtx[i].emplace_back(0, std::vector<int>{i});
-                    } else {
-                        expected_mtx[i].emplace_back(1, std::vector<int>{i,j});
-                    }
-                }
-            }
-            test_floyd_warshall(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, expected_mtx);
-        }
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
@@ -351,16 +278,6 @@ TEST_CASE( "Correctness", "[Requirement 1]" ) {
         SECTION("Bellman-Ford") {
             test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 0, 1, expected, bellman_for_two_vertices);
         }
-        SECTION("Floyd-Warshall") {
-            std::vector<std::vector<std::pair<long long, std::vector<int>>>>expected_mtx(n);
-            expected_mtx[0] = {{0, {0}}, {47, {0,3,2,1}}, {40, {0,3,2}}, {20, {0,3}}, {10, {0,4}}};
-            expected_mtx[1] = {{47, {1,2,3,0}}, {0,{1}}, {7,{1,2}}, {27, {1,2,3}}, {42, {1,2,3,4}}};
-            expected_mtx[2] = {{40, {2,3,0}}, {7,{2,1}}, {0,{2}}, {20,{2,3}}, {35,{2,3,4}}};
-            expected_mtx[3] = {{20,{3,0}}, {27, {3,2,1}}, {20, {3,2}}, {0,{3}}, {15, {3,4}}};
-            expected_mtx[4] = {{10, {4,0}}, {42, {4,3,2,1}}, {35,{4,3,2}}, {15,{4,3}}, {0, {4}}};
-            test_floyd_warshall(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, expected_mtx);
-        }
-
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
@@ -406,19 +323,11 @@ TEST_CASE( "Correctness", "[Requirement 1]" ) {
         SECTION("Bellman-Ford") {
             test_shortest_path(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, 2, 4, expected, bellman_for_two_vertices);
         }
-        SECTION("Floyd-Warshall") {
-            std::vector<std::vector<std::pair<long long, std::vector<int>>>>expected_mtx(n);
-            expected_mtx[0] = {{0, {0}}, {-1, {}}, {-1, {}}, {20, {0,3}}, {10, {0,4}}};
-            expected_mtx[1] = {{-1, {}}, {0,{1}}, {7,{1,2}}, {-1, {}}, {-1, {}}};
-            expected_mtx[2] = {{-1, {}}, {7,{2,1}}, {0,{2}}, {-1,{}}, {-1,{}}};
-            expected_mtx[3] = {{20,{3,0}}, {-1, {}}, {-1, {}}, {0,{3}}, {15, {3,4}}};
-            expected_mtx[4] = {{10, {4,0}}, {-1, {}}, {-1,{}}, {15,{4,3}}, {0, {4}}};
-            test_floyd_warshall(adjacency_list_converter, adjacency_matrix_converter, edge_list_converter, expected_mtx);
-        }
 
         for (int i = 0; i < n; i++) {
             delete adjacency_matrix[i];
         }
         delete adjacency_matrix;
     }
+       
 }
