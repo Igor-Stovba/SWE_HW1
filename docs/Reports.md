@@ -27,6 +27,8 @@ Ran with taskset -c 0 to attach our executable to a single core and avoid contex
 ```
 taskset -c 0 ./Bench --benchmark_format=json > bench_result.json
 ``` 
+
+Note: consumed memory includes memory, which is needed for algorithm itself, and memory, which is used in benchmark preparation. (Creating random graphs, arrays for answer, arrays for working in algorithm).
 ## Ubuntu jammy
 ```
 Benchmark Report
@@ -366,5 +368,20 @@ Allocations per Iteration: 5750.0
 Max Used (Bytes / MBytes): 314000000 / 314.0
 --------------------------------------------------
 ```
+# Conclusion
 
+```Speed Comparison
+Fastest OS overall: Arch Linux
 
+Achieves the lowest CPU time for most algorithms.
+Notably faster in Bellman-Ford and Floyd-Warshall.
+
+Debian 12 performed slightly better than Ubuntu in Dijkstra's algorithm for large graphs, but Ubuntu was marginally faster in some cases.
+
+Ubuntu 22.04 had slightly higher CPU times than Arch and Debian in some cases, especially with large graphs.
+
+About numbers:
+
+On Bellman-Ford Arch Linux showed the best speed of execution (27.5 ms per iteration). Debian 12 - 29.0 ms, Ubuntu - 33.15 ms.
+
+On Floyd-Warshall Arch Linux is the best in terms of speed (55.0 ms against 57.0 ms and 59.12 ms), but as for consumed memory Ubuntu is the best choice (266 Mb against Arch: 314 Mb and Debian 12: 315 Mb).
