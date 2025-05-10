@@ -13,6 +13,124 @@ std::pair<long long, std::vector<int>> (*algorithm)(int start, int finish , Conv
     REQUIRE( res3 == expected );
 }
 
+TEST_CASE("Converter", "[Converter]") {
+    SECTION("adjacency list") {
+        int n = 5;
+        Graph_ adjacency_list(n);
+        adjacency_list[0] = {{1, 10}, {2, 20}, {4, 50}};
+        adjacency_list[1] = {{0, 10}, {3, 30}};
+        adjacency_list[2] = {{0, 20}, {3, 40}, {4, 60}};
+        adjacency_list[3] = {{1, 30}, {2, 40}, {4, 70}};
+        adjacency_list[4] = {{0, 50}, {2, 60}, {3, 70}};
+
+        Converter converter(adjacency_list);
+        REQUIRE(converter.graph == adjacency_list);
+    }
+
+    SECTION("adjacency matrix") {
+        int n = 5;
+        long long** adjacency_matrix = new long long*[n];
+        for (int i = 0; i < n; i++) {
+            adjacency_matrix[i] = new long long[n]{};
+        }
+
+        adjacency_matrix[0][1] = 10;
+        adjacency_matrix[0][2] = 20;
+        adjacency_matrix[0][4] = 50;
+        adjacency_matrix[1][3] = 30;
+        adjacency_matrix[2][3] = 40;
+        adjacency_matrix[2][4] = 60;
+        adjacency_matrix[3][4] = 70;
+        adjacency_matrix[1][0] = 10;
+        adjacency_matrix[2][0] = 20;
+        adjacency_matrix[3][1] = 30;
+        adjacency_matrix[3][2] = 40;
+        adjacency_matrix[4][0] = 50;
+        adjacency_matrix[4][2] = 60;
+        adjacency_matrix[4][3] = 70;
+
+        Converter converter(adjacency_matrix, n);
+        Graph_ expected = {
+            {{1, 10}, {2, 20}, {4, 50}},
+            {{0, 10}, {3, 30}},
+            {{0, 20}, {3, 40}, {4, 60}},
+            {{1, 30}, {2, 40}, {4, 70}},
+            {{0, 50}, {2, 60}, {3, 70}}
+        };
+
+        REQUIRE(converter.graph == expected);
+
+        for (int i = 0; i < n; i++) {
+            delete[] adjacency_matrix[i];
+        }
+        delete[] adjacency_matrix;
+    }
+
+    SECTION("edge list (undirected)") {
+        std::vector<Edge> edge_list = {
+            {0, 1, 10}, {0, 2, 20}, {0, 4, 50},
+            {1, 3, 30}, {2, 3, 40}, {2, 4, 60}, {3, 4, 70}
+        };
+
+        Converter converter(edge_list, false);
+        Graph_ expected = {
+            {{1, 10}, {2, 20}, {4, 50}},
+            {{0, 10}, {3, 30}},
+            {{0, 20}, {3, 40}, {4, 60}},
+            {{1, 30}, {2, 40}, {4, 70}},
+            {{0, 50}, {2, 60}, {3, 70}}
+        };
+
+        REQUIRE(converter.graph == expected);
+    }
+
+    SECTION("edge list (directed)") {
+        std::vector<Edge> edge_list = {
+            {0, 1, 10}, {0, 2, 20}, {0, 4, 50},
+            {1, 3, 30}, {2, 3, 40}, {2, 4, 60}, {3, 4, 70}
+        };
+
+        Converter converter(edge_list, true);
+        Graph_ expected = {
+            {{1, 10}, {2, 20}, {4, 50}},
+            {{3, 30}},
+            {{3, 40}, {4, 60}},
+            {{4, 70}},
+            {}
+        };
+
+        REQUIRE(converter.graph == expected);
+    }
+
+    SECTION("empty edge list") {
+        std::vector<Edge> edge_list = {};
+        Converter converter(edge_list, false);
+        REQUIRE(converter.graph.empty());
+    }
+
+    SECTION("empty adjacency list") {
+        Graph_ empty_list = {};
+        Converter converter(empty_list);
+        REQUIRE(converter.graph.empty());
+    }
+
+    SECTION("empty adjacency matrix") {
+        int n = 5;
+        long long** adjacency_matrix = new long long*[n];
+        for (int i = 0; i < n; i++) {
+            adjacency_matrix[i] = new long long[n]{};
+        }
+
+        Converter converter(adjacency_matrix, n);
+        REQUIRE(converter.graph == Graph_(n));
+
+        for (int i = 0; i < n; i++) {
+            delete[] adjacency_matrix[i];
+        }
+        delete[] adjacency_matrix;
+    }
+}
+
 
 TEST_CASE( "Correctness", "[Requirement 1]" ) {
     SECTION("empty graph") {

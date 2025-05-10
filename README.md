@@ -46,6 +46,12 @@ This will add our library to your system path. After that you can use it like:
 #include <spath/spath.hpp>
 ```
 
+# External dependencies
+
+1) `Google Benchmark` - library for benchmark tests. [Link](https://github.com/google/benchmark)
+2) `Jngen` - library for generating algorithmic primitives. [Link](https://github.com/ifsmirnov/jngen)
+3) `Catch2` - library for unit-testing in C++. [Link](https://github.com/catchorg/Catch2)
+
 # Testing
 
 We have `tests.cpp` with included header. On each push tests from this file will be run. The tests will use Catch2 framework.
